@@ -13,10 +13,18 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private PieceType type;
+    private boolean moved;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, boolean moved) {
+        this.pieceColor = pieceColor;
+        this.type = type;
+        this.moved = moved;
+    }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        this.moved = true;
     }
 
     @Override
@@ -31,6 +39,10 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, type);
+    }
+
+    public void setMoved(boolean moved) {
+        this.moved = moved;
     }
 
     /**
@@ -59,6 +71,10 @@ public class ChessPiece {
         return this.type;
     }
 
+    public boolean getMoved() {
+        return this.moved;
+    }
+
     public void promotePiece(PieceType newType) {
         type = newType;
     }
@@ -71,6 +87,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return new PieceMoveCalculator().moveCalculator(this, board, myPosition);
     }
 }
