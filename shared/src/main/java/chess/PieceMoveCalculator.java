@@ -181,6 +181,19 @@ public class PieceMoveCalculator {
     }
 
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        ChessPosition nextPosition;
+
+        for (int rowDirectionModifier = -1; rowDirectionModifier <= 1; rowDirectionModifier += 2) {
+            for (int colDirectionModifier = -1; colDirectionModifier <= 1; colDirectionModifier += 2) {
+                nextPosition = new ChessPosition(myRow + (2 * rowDirectionModifier), myCol + colDirectionModifier);
+                validateMove(board, myPosition, nextPosition, piece); // Two spaces vertically, one space horizontally,
+                nextPosition = new ChessPosition(myRow + rowDirectionModifier, myCol + (2 * colDirectionModifier));
+                validateMove(board, myPosition, nextPosition, piece); // One space vertically, two spaces horizontally
+            }
+        }
+
         return out;
     }
 
