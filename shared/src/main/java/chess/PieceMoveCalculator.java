@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class PieceMoveCalculator {
-    private Collection<ChessMove> out = new ArrayList<>();
+    private final Collection<ChessMove> out = new ArrayList<>();
 
     public PieceMoveCalculator() {
     }
@@ -130,6 +130,34 @@ public class PieceMoveCalculator {
     }
 
     private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        ChessPosition nextPosition;
+
+        boolean cont = true;
+        for (int nextRow = myRow - 1; cont; nextRow--) {
+            nextPosition = new ChessPosition(nextRow, myCol);
+            cont = moveCheck(board, myPosition, nextPosition, piece);
+        }
+
+        cont = true;
+        for (int nextRow = myRow + 1; cont; nextRow++) {
+            nextPosition = new ChessPosition(nextRow, myCol);
+            cont = moveCheck(board, myPosition, nextPosition, piece);
+        }
+
+        cont = true;
+        for (int nextCol = myCol - 1; cont; nextCol--) {
+            nextPosition = new ChessPosition(myRow, nextCol);
+            cont = moveCheck(board, myPosition, nextPosition, piece);
+        }
+
+        cont = true;
+        for (int nextCol = myCol + 1; cont; nextCol++) {
+            nextPosition = new ChessPosition(myRow, nextCol);
+            cont = moveCheck(board, myPosition, nextPosition, piece);
+        }
+
         return out;
     }
 
@@ -143,5 +171,22 @@ public class PieceMoveCalculator {
 
     private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         return out;
+    }
+
+    private boolean moveCheck(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ChessPiece piece) {
+        if (nextPosition.getColumn() < 1 || nextPosition.getColumn() > 8 || nextPosition.getRow() < 1 || nextPosition.getRow() > 8) {
+            return false;
+        }
+
+        ChessMove currentMove = new ChessMove(myPosition, nextPosition, null);
+        ChessPiece victim = board.getPiece(nextPosition);
+        if (victim != null && victim.getTeamColor() == piece.getTeamColor()) {
+            return false;
+        } else if (victim != null) {
+            out.add(currentMove);
+            return false;
+        }
+        out.add(currentMove);
+        return true;
     }
 }

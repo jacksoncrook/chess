@@ -25,9 +25,7 @@ public class ChessBoard {
             for (int colIndex = 0; colIndex < 8; colIndex++) {
                 if (chessPieces[rowIndex][colIndex] == null && that.chessPieces[rowIndex][colIndex] != null) {
                     return false;
-                } else if (chessPieces[rowIndex][colIndex] == null) {
-                    continue;
-                } else if (!(chessPieces[rowIndex][colIndex].equals(that.chessPieces[rowIndex][colIndex]))) {
+                } else if (chessPieces[rowIndex][colIndex] != null && !(chessPieces[rowIndex][colIndex].equals(that.chessPieces[rowIndex][colIndex]))) {
                     return false;
                 }
             }
