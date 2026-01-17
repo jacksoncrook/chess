@@ -49,9 +49,7 @@ public class PieceMoveCalculator {
                     piece.setMoved(false);
                 }
             }
-            case null, default -> {
-                teamMultiplier = 0;
-            }
+            case null, default -> teamMultiplier = 0;
         }
         ChessPosition nextPosition;
         ChessPosition intermediatePosition;
@@ -110,7 +108,24 @@ public class PieceMoveCalculator {
     }
 
     private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
-
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        ChessMove currentMove;
+        ChessPosition nextPosition;
+        ChessPiece victim;
+        for (int rowMod = -1; rowMod <= 1; rowMod++) {
+            if ((rowMod + myRow) >= 1 && (rowMod + myRow) <= 8) {
+                for (int colMod = -1; colMod <= 1; colMod++) {
+                    nextPosition = new ChessPosition(rowMod + myRow, colMod + myCol);
+                    victim = board.getPiece(nextPosition);
+                    boolean validSquare = nextPosition.getColumn() >= 1 && nextPosition.getColumn() <= 8 && nextPosition != myPosition;
+                    if (validSquare && (victim == null || victim.getTeamColor() != piece.getTeamColor())) {
+                        currentMove = new ChessMove(myPosition, nextPosition, null);
+                        out.add(currentMove);
+                    }
+                }
+            }
+        }
         return out;
     }
 
