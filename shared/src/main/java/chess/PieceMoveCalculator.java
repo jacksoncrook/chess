@@ -54,6 +54,7 @@ public class PieceMoveCalculator {
         ChessPosition nextPosition;
         ChessPosition intermediatePosition;
         ChessMove currentMove;
+        ChessPiece victim;
         ChessPiece.PieceType promotionPiece = null;
         int numLoops = 1;
         if (teamMultiplier == 1 && myPosition.getRow() == 7) {
@@ -84,11 +85,23 @@ public class PieceMoveCalculator {
                 out.add(currentMove);
             }
 
-            nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() + 1);
-            validateMove(board, myPosition, nextPosition, piece);
+            if (myPosition.getColumn() < 8) {
+                nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() + 1);
+                victim = board.getPiece(nextPosition);
+                if (victim != null && victim.getTeamColor() != piece.getTeamColor()) {
+                    currentMove = new ChessMove(myPosition, nextPosition, promotionPiece);
+                    out.add(currentMove);
+                }
+            }
 
-            nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() - 1);
-            validateMove(board, myPosition, nextPosition, piece);
+            if (myPosition.getColumn() > 1) {
+                nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() - 1);
+                victim = board.getPiece(nextPosition);
+                if (victim != null && victim.getTeamColor() != piece.getTeamColor()) {
+                    currentMove = new ChessMove(myPosition, nextPosition, promotionPiece);
+                    out.add(currentMove);
+                }
+            }
         }
 
         return out;
