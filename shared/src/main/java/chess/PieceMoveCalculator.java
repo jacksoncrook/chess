@@ -54,7 +54,6 @@ public class PieceMoveCalculator {
         ChessPosition nextPosition;
         ChessPosition intermediatePosition;
         ChessMove currentMove;
-        ChessPiece victim;
         ChessPiece.PieceType promotionPiece = null;
         int numLoops = 1;
         if (teamMultiplier == 1 && myPosition.getRow() == 7) {
@@ -85,23 +84,11 @@ public class PieceMoveCalculator {
                 out.add(currentMove);
             }
 
-            if (myPosition.getColumn() < 8) {
-                nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() + 1);
-                victim = board.getPiece(nextPosition);
-                if (victim != null && victim.getTeamColor() != piece.getTeamColor()) {
-                    currentMove = new ChessMove(myPosition, nextPosition, promotionPiece);
-                    out.add(currentMove);
-                }
-            }
+            nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() + 1);
+            validateMove(board, myPosition, nextPosition, piece);
 
-            if (myPosition.getColumn() > 1) {
-                nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() - 1);
-                victim = board.getPiece(nextPosition);
-                if (victim != null && victim.getTeamColor() != piece.getTeamColor()) {
-                    currentMove = new ChessMove(myPosition, nextPosition, promotionPiece);
-                    out.add(currentMove);
-                }
-            }
+            nextPosition = new ChessPosition(myPosition.getRow() + teamMultiplier, myPosition.getColumn() - 1);
+            validateMove(board, myPosition, nextPosition, piece);
         }
 
         return out;
@@ -110,19 +97,12 @@ public class PieceMoveCalculator {
     private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         int myRow = myPosition.getRow();
         int myCol = myPosition.getColumn();
-        ChessMove currentMove;
         ChessPosition nextPosition;
-        ChessPiece victim;
         for (int rowMod = -1; rowMod <= 1; rowMod++) {
-            if ((rowMod + myRow) >= 1 && (rowMod + myRow) <= 8) {
-                for (int colMod = -1; colMod <= 1; colMod++) {
-                    nextPosition = new ChessPosition(rowMod + myRow, colMod + myCol);
-                    victim = board.getPiece(nextPosition);
-                    boolean validSquare = nextPosition.getColumn() >= 1 && nextPosition.getColumn() <= 8 && nextPosition != myPosition;
-                    if (validSquare && (victim == null || victim.getTeamColor() != piece.getTeamColor())) {
-                        currentMove = new ChessMove(myPosition, nextPosition, null);
-                        out.add(currentMove);
-                    }
+            for (int colMod = -1; colMod <= 1; colMod++) {
+                nextPosition = new ChessPosition(rowMod + myRow, colMod + myCol);
+                if (nextPosition != myPosition) {
+                    validateMove(board, myPosition, nextPosition, piece);
                 }
             }
         }
@@ -133,35 +113,70 @@ public class PieceMoveCalculator {
         int myRow = myPosition.getRow();
         int myCol = myPosition.getColumn();
         ChessPosition nextPosition;
+        boolean cont;
 
-        boolean cont = true;
-        for (int nextRow = myRow - 1; cont; nextRow--) {
-            nextPosition = new ChessPosition(nextRow, myCol);
-            cont = moveCheck(board, myPosition, nextPosition, piece);
-        }
+        for (int directionModifier = -1; directionModifier <= 1; directionModifier += 2) {
+            cont = true;
+            for (int nextRow = myRow + directionModifier; cont; nextRow += directionModifier) { // Up and down
+                nextPosition = new ChessPosition(nextRow, myCol);
+                cont = validateMove(board, myPosition, nextPosition, piece);
+            }
 
-        cont = true;
-        for (int nextRow = myRow + 1; cont; nextRow++) {
-            nextPosition = new ChessPosition(nextRow, myCol);
-            cont = moveCheck(board, myPosition, nextPosition, piece);
-        }
-
-        cont = true;
-        for (int nextCol = myCol - 1; cont; nextCol--) {
-            nextPosition = new ChessPosition(myRow, nextCol);
-            cont = moveCheck(board, myPosition, nextPosition, piece);
-        }
-
-        cont = true;
-        for (int nextCol = myCol + 1; cont; nextCol++) {
-            nextPosition = new ChessPosition(myRow, nextCol);
-            cont = moveCheck(board, myPosition, nextPosition, piece);
+            cont = true;
+            for (int nextCol = myCol + directionModifier; cont; nextCol += directionModifier) { // Left and right
+                nextPosition = new ChessPosition(myRow, nextCol);
+                cont = validateMove(board, myPosition, nextPosition, piece);
+            }
         }
 
         return out;
     }
 
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        ChessPosition nextPosition;
+
+        boolean cont = true;
+        int nextRow = myRow - 1;
+        int nextCol = myCol - 1;
+        while (cont) { // Down left
+            nextPosition = new ChessPosition(nextRow, nextCol);
+            cont = validateMove(board, myPosition, nextPosition, piece);
+            nextRow--;
+            nextCol--;
+        }
+
+        cont = true;
+        nextRow = myRow + 1;
+        nextCol = myCol - 1;
+        while (cont) { // Down Right
+            nextPosition = new ChessPosition(nextRow, nextCol);
+            cont = validateMove(board, myPosition, nextPosition, piece);
+            nextRow++;
+            nextCol--;
+        }
+
+        cont = true;
+        nextRow = myRow - 1;
+        nextCol = myCol + 1;
+        while (cont) { // Up Left
+            nextPosition = new ChessPosition(nextRow, nextCol);
+            cont = validateMove(board, myPosition, nextPosition, piece);
+            nextRow--;
+            nextCol++;
+        }
+
+        cont = true;
+        nextRow = myRow + 1;
+        nextCol = myCol + 1;
+        while (cont) { // Up Right
+            nextPosition = new ChessPosition(nextRow, nextCol);
+            cont = validateMove(board, myPosition, nextPosition, piece);
+            nextRow++;
+            nextCol++;
+        }
+
         return out;
     }
 
@@ -170,10 +185,12 @@ public class PieceMoveCalculator {
     }
 
     private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
+        rookMoves(board, myPosition, piece);
+        bishopMoves(board, myPosition, piece);
         return out;
     }
 
-    private boolean moveCheck(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ChessPiece piece) {
+    private boolean validateMove(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ChessPiece piece) {
         if (nextPosition.getColumn() < 1 || nextPosition.getColumn() > 8 || nextPosition.getRow() < 1 || nextPosition.getRow() > 8) {
             return false;
         }
