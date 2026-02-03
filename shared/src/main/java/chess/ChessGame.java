@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -16,6 +17,20 @@ public class ChessGame {
     public ChessGame() {
         this.currentTeam = TeamColor.WHITE;
         board.resetBoard();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return currentTeam == chessGame.currentTeam && Objects.equals(getBoard(), chessGame.getBoard());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTeam, getBoard());
     }
 
     /**
@@ -60,7 +75,19 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = this.board.getPiece(startPosition);
+        if (validMoves(startPosition).contains(move)) {
+            this.board.addPiece(startPosition, null);
+            this.board.addPiece(endPosition, piece);
+            if (this.getTeamTurn() == TeamColor.WHITE) {
+                this.setTeamTurn(TeamColor.BLACK);
+            } else {
+                this.setTeamTurn(TeamColor.WHITE);
+            }
+
+        } else throw new InvalidMoveException();
     }
 
     /**
