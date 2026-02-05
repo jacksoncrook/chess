@@ -101,18 +101,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPiece piece;
-        ChessPosition position;
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                position = new ChessPosition(row, col);
-                piece = board.getPiece(position);
-                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                    return spaceIsSafe(position, teamColor);
-                }
-            }
-        }
-        return false;
+        ChessPosition kingPosition = findKing(teamColor);
+        return spaceIsSafe(kingPosition, teamColor);
     }
 
     /**
@@ -122,7 +112,12 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) return false;
+
+        ChessPosition kingPosition = findKing(teamColor);
+        Collection<ChessMove> kingMoves = validMoves(kingPosition);
+
+        return kingMoves.isEmpty();
     }
 
     /**
@@ -133,7 +128,27 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) return false;
+
+        ChessPosition kingPosition = findKing(teamColor);
+        Collection<ChessMove> kingMoves = validMoves(kingPosition);
+
+        return kingMoves.isEmpty();
+    }
+
+    public ChessPosition findKing(TeamColor teamColor) {
+        ChessPiece piece;
+        ChessPosition position;
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                position = new ChessPosition(row, col);
+                piece = board.getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return position;
+                }
+            }
+        }
+        return null;
     }
 
     /**
