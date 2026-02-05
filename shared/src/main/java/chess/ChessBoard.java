@@ -46,9 +46,11 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        int row = position.getRow() - 1;
-        int col = position.getColumn() - 1;
-        this.chessPieces[row][col] = piece;
+        if (position.isValidPosition()) {
+            int row = position.getRow() - 1;
+            int col = position.getColumn() - 1;
+            this.chessPieces[row][col] = piece;
+        }
     }
 
     /**
@@ -61,7 +63,7 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         int row = position.getRow() - 1;
         int col = position.getColumn() - 1;
-        if (-1 < row && row < 8 && -1 < col && col < 8) {
+        if (position.isValidPosition()) {
             return this.chessPieces[row][col];
         } else {
             return null;

@@ -47,4 +47,8 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+    public boolean isValidPosition() {
+        return row >= 1 && col >= 1 && row <= 8 && col <= 8;
+    }
 }

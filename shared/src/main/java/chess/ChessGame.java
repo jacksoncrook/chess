@@ -78,15 +78,19 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = this.board.getPiece(startPosition);
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+
         if (validMoves(startPosition).contains(move)) {
             this.board.addPiece(startPosition, null);
             this.board.addPiece(endPosition, piece);
+
+            if (promotionPiece != null) piece.promotePiece(promotionPiece);
+
             if (this.getTeamTurn() == TeamColor.WHITE) {
                 this.setTeamTurn(TeamColor.BLACK);
             } else {
                 this.setTeamTurn(TeamColor.WHITE);
             }
-
         } else throw new InvalidMoveException();
     }
 
@@ -97,7 +101,18 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece;
+        ChessPosition position;
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                position = new ChessPosition(row, col);
+                piece = board.getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return spaceIsSafe(position, teamColor);
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -137,5 +152,65 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public boolean spaceIsSafe(ChessPosition position, TeamColor teamColor) {
+        int col = position.getColumn();
+        int row = position.getRow();
+        int nextCol;
+        int nextRow;
+        int teamModifier = 0;
+        ChessPiece assailant;
+        ChessPosition nextPosition;
+
+        for (int colModifier = -1; colModifier <= 1; colModifier++) { // Check for King attacking
+            for (int rowModifier = -1; rowModifier <= 1; rowModifier++) {
+                nextCol = col + colModifier;
+                nextRow = row + rowModifier;
+                nextPosition = new ChessPosition(nextRow, nextCol);
+                if (nextPosition.isValidPosition()) {
+                    assailant = board.getPiece(nextPosition);
+                    if (assailant.getTeamColor() != teamColor && assailant.getPieceType() == ChessPiece.PieceType.KING) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (teamColor == TeamColor.WHITE) { // Set team modifier for pawn attacks
+            teamModifier = 1;
+        } else if (teamColor == TeamColor.BLACK) {
+            teamModifier = -1;
+        }
+
+
+        for (int colModifier = -1; colModifier <= 1; colModifier += 1) { // Check for pawn attacks
+            nextCol = col + colModifier;
+            nextRow = row + teamModifier;
+            nextPosition = new ChessPosition(nextRow, nextCol);
+            assailant = board.getPiece(nextPosition);
+
+            if (assailant != null && assailant.getTeamColor() != teamColor && assailant.getPieceType() == ChessPiece.PieceType.PAWN) {
+                return false;
+            }
+        }
+
+        for (int rowDirectionModifier = -1; rowDirectionModifier <= 1; rowDirectionModifier += 2) { // Check for knight attacks
+            for (int colDirectionModifier = -1; colDirectionModifier <= 1; colDirectionModifier += 2) {
+                nextPosition = new ChessPosition(row + (2 * rowDirectionModifier), col + colDirectionModifier);
+                assailant = board.getPiece(nextPosition); // Two spaces vertically, one space horizontally
+                if (assailant != null && assailant.getTeamColor() != teamColor && assailant.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                    return false;
+                }
+
+                nextPosition = new ChessPosition(row + rowDirectionModifier, col + (2 * colDirectionModifier));
+                assailant = board.getPiece(nextPosition); // One space vertically, two spaces horizontally
+                if (assailant != null && assailant.getTeamColor() != teamColor && assailant.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

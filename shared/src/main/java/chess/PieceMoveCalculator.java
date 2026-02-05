@@ -224,7 +224,7 @@ public class PieceMoveCalculator {
     }
 
     private boolean validateMove(ChessPosition nextPosition) {
-        if (nextPosition.getColumn() < 1 || nextPosition.getColumn() > 8 || nextPosition.getRow() < 1 || nextPosition.getRow() > 8) {
+        if (!nextPosition.isValidPosition()) {
             return false;
         }
 
