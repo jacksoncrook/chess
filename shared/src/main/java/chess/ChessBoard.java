@@ -72,8 +72,8 @@ public class ChessBoard {
 
     public ChessPiece getPiece(ChessPosition position, ChessMove move) {
         if (move == null) return getPiece(position);
-        else if (position == move.getEndPosition()) return getPiece(move.getStartPosition());
-        else if (position == move.getStartPosition()) return null;
+        else if (position.equals(move.getEndPosition())) return getPiece(move.getStartPosition());
+        else if (position.equals(move.getStartPosition())) return null;
         else return getPiece(position);
     }
 

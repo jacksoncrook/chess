@@ -41,6 +41,14 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "type=" + type +
+                ", color=" + pieceColor +
+                '}';
+    }
+
     public void setMoved(boolean moved) {
         this.moved = moved;
     }
