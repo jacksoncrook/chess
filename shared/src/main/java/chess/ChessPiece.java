@@ -71,12 +71,14 @@ public class ChessPiece {
         return this.type;
     }
 
+    public boolean isType(PieceType type) { return this.type == type; }
+
     public boolean getMoved() {
         return this.moved;
     }
 
     public void promotePiece(PieceType newType) {
-        type = newType;
+        if (newType != null) type = newType;
     }
 
     /**
