@@ -67,8 +67,14 @@ public class ChessBoard {
             return this.chessPieces[row][col];
         } else {
             return null;
-            //throw new InvalidMoveException();
         }
+    }
+
+    public ChessPiece getPiece(ChessPosition position, ChessMove move) {
+        if (move == null) return getPiece(position);
+        else if (position == move.getEndPosition()) return getPiece(move.getStartPosition());
+        else if (position == move.getStartPosition()) return null;
+        else return getPiece(position);
     }
 
     /**

@@ -69,37 +69,23 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         chess.ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) return null;
+        TeamColor teamColor = piece.getTeamColor();
+        Collection<ChessMove> out = new ArrayList<>();
 
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
+        ChessPosition kingPosition = findKing(teamColor);
+
+        for (ChessMove currentMove : moves)
+            if (spaceIsSafeAfterMove(kingPosition, teamColor, currentMove)) out.add(currentMove);
 
 
         if (piece.isType(ChessPiece.PieceType.PAWN) && !enPassantSpaces.isEmpty()) {
-            int teamModifier;
-            ChessPosition nextPosition;
-            ChessMove enPassant;
-
-            if (piece.getTeamColor() == TeamColor.WHITE) {
-                teamModifier = 1;
-            } else {
-                teamModifier = -1;
-            }
-
-            nextPosition = new ChessPosition(startPosition.getRow() + teamModifier, startPosition.getColumn() + 1);
-
-            if (enPassantSpaces.contains(nextPosition)) {
-                enPassant = new ChessMove(startPosition, nextPosition, null);
-                moves.add(enPassant);
-            }
-
-            nextPosition = new ChessPosition(startPosition.getRow() + teamModifier, startPosition.getColumn() - 1);
-            if (enPassantSpaces.contains(nextPosition)) {
-                enPassant = new ChessMove(startPosition, nextPosition, null);
-                moves.add(enPassant);
-            }
+            ChessMove enPassantMove = enPassant(startPosition, teamColor);
+            if (enPassantMove != null) out.add(enPassantMove);
         }
 
-        return moves;
+        return out;
     }
 
     /**
@@ -160,6 +146,32 @@ public class ChessGame {
         ChessPosition enPassantSpace = new ChessPosition(enPassantRow, move.getEndPosition().getColumn());
 
         enPassantSpaces.add(enPassantSpace);
+    }
+
+    private ChessMove enPassant(ChessPosition startPosition, TeamColor teamColor) {
+        int teamModifier;
+        ChessPosition nextPosition;
+        ChessMove enPassant;
+
+        if (teamColor == TeamColor.WHITE) {
+            teamModifier = 1;
+        } else {
+            teamModifier = -1;
+        }
+
+        nextPosition = new ChessPosition(startPosition.getRow() + teamModifier, startPosition.getColumn() + 1);
+        if (enPassantSpaces.contains(nextPosition)) {
+            enPassant = new ChessMove(startPosition, nextPosition, null);
+            return enPassant;
+        }
+
+        nextPosition = new ChessPosition(startPosition.getRow() + teamModifier, startPosition.getColumn() - 1);
+        if (enPassantSpaces.contains(nextPosition)) {
+            enPassant = new ChessMove(startPosition, nextPosition, null);
+            return enPassant;
+        }
+
+        return null;
     }
 
     /**
@@ -242,16 +254,28 @@ public class ChessGame {
     public boolean spaceIsSafe(ChessPosition position, TeamColor teamColor) {
         if (position == null) return true;
 
-        boolean pawnDanger = dangerFromPawn(position, teamColor);
-        boolean kingDanger = dangerFromKing(position, teamColor);
-        boolean knightDanger = dangerFromKnight(position, teamColor);
-        boolean bishopDanger = dangerFromBishop(position, teamColor);
-        boolean rookDanger = dangerFromRook(position, teamColor);
+        boolean pawnDanger = dangerFromPawn(position, teamColor, null);
+        boolean kingDanger = dangerFromKing(position, teamColor, null);
+        boolean knightDanger = dangerFromKnight(position, teamColor, null);
+        boolean bishopDanger = dangerFromBishop(position, teamColor, null);
+        boolean rookDanger = dangerFromRook(position, teamColor, null);
 
         return !(pawnDanger || kingDanger || knightDanger || bishopDanger || rookDanger);
     }
 
-    private boolean dangerFromRook(ChessPosition position, TeamColor teamColor) {
+    public boolean spaceIsSafeAfterMove(ChessPosition position, TeamColor teamColor, ChessMove move) {
+        if (position == null) return true;
+
+        boolean pawnDanger = dangerFromPawn(position, teamColor, move);
+        boolean kingDanger = dangerFromKing(position, teamColor, move);
+        boolean knightDanger = dangerFromKnight(position, teamColor, move);
+        boolean bishopDanger = dangerFromBishop(position, teamColor, move);
+        boolean rookDanger = dangerFromRook(position, teamColor, move);
+
+        return !(pawnDanger || kingDanger || knightDanger || bishopDanger || rookDanger);
+    }
+
+    private boolean dangerFromRook(ChessPosition position, TeamColor teamColor, ChessMove move) {
         int col = position.getColumn();
         int row = position.getRow();
         ChessPiece assailant;
@@ -269,7 +293,7 @@ public class ChessGame {
                     default -> nextPosition = position;
                 }
                 modifier++;
-                assailant = board.getPiece(nextPosition);
+                assailant = board.getPiece(nextPosition, move);
             } while (nextPosition.isValidPosition() && assailant == null);
             if (assailant != null && ( assailant.isType(ChessPiece.PieceType.QUEEN) || assailant.isType(ChessPiece.PieceType.ROOK) ) && assailant.getTeamColor() != teamColor ) return true;
         }
@@ -277,7 +301,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean dangerFromBishop(ChessPosition position, TeamColor teamColor) {
+    private boolean dangerFromBishop(ChessPosition position, TeamColor teamColor, ChessMove move) {
         int col = position.getColumn();
         int row = position.getRow();
         ChessPiece assailant;
@@ -295,7 +319,7 @@ public class ChessGame {
                     default -> nextPosition = position;
                 }
                 modifier++;
-                assailant = board.getPiece(nextPosition);
+                assailant = board.getPiece(nextPosition, move);
             } while (nextPosition.isValidPosition() && assailant == null);
             if (assailant != null && ( assailant.isType(ChessPiece.PieceType.QUEEN) || assailant.isType(ChessPiece.PieceType.BISHOP) ) && assailant.getTeamColor() != teamColor ) return true;
         }
@@ -303,7 +327,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean dangerFromKnight(ChessPosition position, TeamColor teamColor) {
+    private boolean dangerFromKnight(ChessPosition position, TeamColor teamColor, ChessMove move) {
         int col = position.getColumn();
         int row = position.getRow();
         ChessPiece assailant;
@@ -312,13 +336,13 @@ public class ChessGame {
         for (int rowDirectionModifier = -1; rowDirectionModifier <= 1; rowDirectionModifier += 2) { // Check for knight attacks
             for (int colDirectionModifier = -1; colDirectionModifier <= 1; colDirectionModifier += 2) {
                 nextPosition = new ChessPosition(row + (2 * rowDirectionModifier), col + colDirectionModifier);
-                assailant = board.getPiece(nextPosition); // Two spaces vertically, one space horizontally
+                assailant = board.getPiece(nextPosition, move); // Two spaces vertically, one space horizontally
                 if (assailant != null && assailant.getTeamColor() != teamColor && assailant.isType(ChessPiece.PieceType.KNIGHT)) {
                     return true;
                 }
 
                 nextPosition = new ChessPosition(row + rowDirectionModifier, col + (2 * colDirectionModifier));
-                assailant = board.getPiece(nextPosition); // One space vertically, two spaces horizontally
+                assailant = board.getPiece(nextPosition, move); // One space vertically, two spaces horizontally
                 if (assailant != null && assailant.getTeamColor() != teamColor && assailant.isType(ChessPiece.PieceType.KNIGHT)) {
                     return true;
                 }
@@ -328,7 +352,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean dangerFromPawn(ChessPosition position, TeamColor teamColor) {
+    private boolean dangerFromPawn(ChessPosition position, TeamColor teamColor, ChessMove move) {
         int col = position.getColumn();
         int row = position.getRow();
         int nextCol;
@@ -349,7 +373,7 @@ public class ChessGame {
             nextCol = col + colModifier;
             nextRow = row + teamModifier;
             nextPosition = new ChessPosition(nextRow, nextCol);
-            assailant = board.getPiece(nextPosition);
+            assailant = board.getPiece(nextPosition, move);
 
             if (assailant != null && assailant.getTeamColor() != teamColor && assailant.isType(ChessPiece.PieceType.PAWN)) {
                 return true;
@@ -359,7 +383,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean dangerFromKing(ChessPosition position, TeamColor teamColor) {
+    private boolean dangerFromKing(ChessPosition position, TeamColor teamColor, ChessMove move) {
         int col = position.getColumn();
         int row = position.getRow();
         int nextCol;
@@ -373,7 +397,7 @@ public class ChessGame {
                 nextRow = row + rowModifier;
                 nextPosition = new ChessPosition(nextRow, nextCol);
                 if (nextPosition.isValidPosition()) {
-                    assailant = board.getPiece(nextPosition);
+                    assailant = board.getPiece(nextPosition, move);
                     if (assailant == null) continue;
                     if (assailant.getTeamColor() != teamColor && assailant.isType(ChessPiece.PieceType.KING)) {
                         return true;
