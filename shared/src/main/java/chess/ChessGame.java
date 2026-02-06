@@ -93,6 +93,32 @@ public class ChessGame {
         return out;
     }
 
+    public Collection<ChessMove> teamValidMoves(TeamColor teamColor) {
+        Collection<ChessPosition> piecePositions = getTeamPiecePositions(teamColor);
+        Collection<ChessMove> out = new ArrayList<>();
+        for (ChessPosition currentPiece : piecePositions) {
+            out.addAll(validMoves(currentPiece));
+        }
+        return out;
+    }
+
+    public Collection<ChessPosition> getTeamPiecePositions(TeamColor teamColor) {
+        ChessPiece piece;
+        ChessPosition position;
+        Collection<ChessPosition> out = new ArrayList<>();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                position = new ChessPosition(row, col);
+                piece = board.getPiece(position);
+                if (piece == null) continue;
+                if (piece.getTeamColor() == teamColor) {
+                    out.add(position);
+                }
+            }
+        }
+        return out;
+    }
+
     /**
      * Makes a move in a chess game
      *
@@ -199,10 +225,9 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) return false;
 
-        ChessPosition kingPosition = findKing(teamColor);
-        Collection<ChessMove> kingMoves = validMoves(kingPosition);
+        Collection<ChessMove> teamMoves = teamValidMoves(teamColor);
 
-        return kingMoves.isEmpty();
+        return teamMoves.isEmpty();
     }
 
     /**
@@ -215,11 +240,9 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) return false;
 
-        ChessPosition kingPosition = findKing(teamColor);
-        if (kingPosition == null) return false;
-        Collection<ChessMove> kingMoves = validMoves(kingPosition);
+        Collection<ChessMove> teamMoves = teamValidMoves(teamColor);
 
-        return kingMoves.isEmpty();
+        return teamMoves.isEmpty();
     }
 
     public ChessPosition findKing(TeamColor teamColor) {
