@@ -24,7 +24,7 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        this.moved = true;
+        this.moved = type != PieceType.KING && type != PieceType.ROOK;
     }
 
     @Override
@@ -81,8 +81,8 @@ public class ChessPiece {
 
     public boolean isType(PieceType type) { return this.type == type; }
 
-    public boolean getMoved() {
-        return this.moved;
+    public boolean getNotMoved() {
+        return !this.moved;
     }
 
     public void promotePiece(PieceType newType) {

@@ -77,6 +77,35 @@ public class ChessGame {
         if (piece.isType(ChessPiece.PieceType.KING)) {
             for (ChessMove currentMove : moves)
                 if (spaceIsSafeAfterMove(currentMove.getEndPosition(), teamColor, currentMove)) out.add(currentMove);
+
+            if (piece.getNotMoved() && !isInCheck(teamColor) && (startPosition.getRow() == 1 || startPosition.getRow() == 8)) {
+                ChessPosition rookSquare = new ChessPosition(startPosition.getRow(), 8);
+                ChessPiece rook = board.getPiece(rookSquare);
+                ChessPosition intermediateSquare = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + 1);
+                ChessPosition castleSquare = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + 2);
+                ChessMove castling = new ChessMove(startPosition, castleSquare, null);
+
+                boolean castlingIsSafe = spaceIsSafe(intermediateSquare, teamColor) && spaceIsSafe(castleSquare, teamColor);
+                boolean spaceToCastle = board.getPiece(intermediateSquare) == null && board.getPiece(castleSquare) == null;
+
+                if (castlingIsSafe && spaceToCastle && rook != null && rook.getNotMoved()) {
+                    out.add(castling);
+                }
+
+                rookSquare = new ChessPosition(startPosition.getRow(), 1);
+                rook = board.getPiece(rookSquare);
+                intermediateSquare = new ChessPosition(startPosition.getRow(), startPosition.getColumn() - 1);
+                castleSquare = new ChessPosition(startPosition.getRow(), startPosition.getColumn() - 2);
+                castling = new ChessMove(startPosition, castleSquare, null);
+
+                castlingIsSafe = spaceIsSafe(intermediateSquare, teamColor) && spaceIsSafe(castleSquare, teamColor);
+                spaceToCastle = board.getPiece(intermediateSquare) == null && board.getPiece(castleSquare) == null;
+
+                if (castlingIsSafe && spaceToCastle && rook != null && rook.getNotMoved()) {
+                    out.add(castling);
+                }
+            }
+
         } else {
             ChessPosition kingPosition = findKing(teamColor);
 
@@ -139,6 +168,10 @@ public class ChessGame {
             this.board.addPiece(startPosition, null);
             this.board.addPiece(endPosition, piece);
             piece.setMoved(true);
+
+            if (castleCheck(piece, move)) {
+                castle(move);
+            }
 
             if (enPassantSpaces.contains(endPosition)) {
                 ChessPosition passedSpace = new ChessPosition(startPosition.getRow(), endPosition.getColumn());
@@ -203,6 +236,29 @@ public class ChessGame {
         }
 
         return null;
+    }
+
+    private boolean castleCheck(ChessPiece piece, ChessMove move) {
+        if (!piece.isType(ChessPiece.PieceType.KING)) return false;
+        int distance = move.getStartPosition().getColumn() - move.getEndPosition().getColumn();
+        return distance == 2 || distance == -2;
+    }
+
+    private void castle(ChessMove move) {
+        int col = move.getEndPosition().getColumn();
+        if (col == 7) {
+            ChessPosition rookPosition = new ChessPosition(move.getEndPosition().getRow(), 8);
+            ChessPiece rook = board.getPiece(rookPosition);
+            board.addPiece(new ChessPosition(rookPosition.getRow(), 6), rook);
+            board.addPiece(rookPosition, null);
+            rook.setMoved(true);
+        } else if (col == 3) {
+            ChessPosition rookPosition = new ChessPosition(move.getEndPosition().getRow(), 1);
+            ChessPiece rook = board.getPiece(rookPosition);
+            board.addPiece(new ChessPosition(rookPosition.getRow(), 4), rook);
+            board.addPiece(rookPosition, null);
+            rook.setMoved(true);
+        }
     }
 
     /**

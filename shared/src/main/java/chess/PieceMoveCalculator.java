@@ -87,7 +87,7 @@ public class PieceMoveCalculator {
 
             intermediatePosition = nextPosition;
             nextPosition = new ChessPosition(myPosition.getRow() + (2 * teamMultiplier), myPosition.getColumn());
-            if (!piece.getMoved() && board.getPiece(intermediatePosition) == null && board.getPiece(nextPosition) == null) {
+            if (piece.getNotMoved() && board.getPiece(intermediatePosition) == null && board.getPiece(nextPosition) == null) {
                 currentMove = new ChessMove(myPosition, nextPosition, promotionPiece);
                 out.add(currentMove);
             }
