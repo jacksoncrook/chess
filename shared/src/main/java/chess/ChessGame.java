@@ -74,10 +74,15 @@ public class ChessGame {
 
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
-        ChessPosition kingPosition = findKing(teamColor);
+        if (piece.isType(ChessPiece.PieceType.KING)) {
+            for (ChessMove currentMove : moves)
+                if (spaceIsSafeAfterMove(currentMove.getEndPosition(), teamColor, currentMove)) out.add(currentMove);
+        } else {
+            ChessPosition kingPosition = findKing(teamColor);
 
-        for (ChessMove currentMove : moves)
-            if (spaceIsSafeAfterMove(kingPosition, teamColor, currentMove)) out.add(currentMove);
+            for (ChessMove currentMove : moves)
+                if (spaceIsSafeAfterMove(kingPosition, teamColor, currentMove)) out.add(currentMove);
+        }
 
 
         if (piece.isType(ChessPiece.PieceType.PAWN) && !enPassantSpaces.isEmpty()) {
