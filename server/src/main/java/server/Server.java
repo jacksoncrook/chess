@@ -2,7 +2,6 @@ package server;
 
 import handler.RegisterHandler;
 import io.javalin.*;
-import io.javalin.http.Handler;
 
 public class Server {
 
