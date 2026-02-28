@@ -14,6 +14,5 @@ public class ClearHandler implements Handler {
         new MemoryAuthDAO().clear();
         new MemoryGameDAO().clear();
         context.status(200);
-        context.result("OK");
     }
 }
