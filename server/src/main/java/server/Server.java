@@ -1,6 +1,7 @@
 package server;
 
 import handler.ClearHandler;
+import handler.LoginHandler;
 import handler.RegisterHandler;
 import io.javalin.*;
 
@@ -11,6 +12,7 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", new RegisterHandler())
+                .post("/session", new LoginHandler())
                 .delete("/db", new ClearHandler());
 
     }

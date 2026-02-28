@@ -15,7 +15,9 @@ public class UserService {
         if (registerRequest.password() == null || registerRequest.username() == null || registerRequest.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
+
         UserData userData = new MemoryUserDAO().getUser(registerRequest.username());
+
         if (userData != null) {
             throw new AlreadyTakenException("Error: already taken");
         } else {
@@ -28,11 +30,18 @@ public class UserService {
     }
 
     public model.AuthData login(model.LoginRequest loginRequest) throws DataAccessException {
-        UserData userData = new MemoryUserDAO().getUser(loginRequest.username());
-        if (userData == null) {
+        if (loginRequest.password() == null || loginRequest.username() == null) {
             throw new BadRequestException("Error: bad request");
+        }
+
+        UserData userData = new MemoryUserDAO().getUser(loginRequest.username());
+
+        if (userData == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+
         } else if (!userData.password().equals(loginRequest.password())) {
             throw new UnauthorizedException("Error: unauthorized");
+
         } else {
             String authToken = generateToken();
             AuthData authData = new AuthData(authToken, loginRequest.username());
