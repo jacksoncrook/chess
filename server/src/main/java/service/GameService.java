@@ -68,12 +68,18 @@ public class GameService {
             GameData newGameData = oldGameData.addWhiteUser(authData.username());
             new MemoryGameDAO().updateGame(oldGameData, newGameData);
 
-        } else if (oldGameData.blackUsername() == null) {
+        } else if (joinGameRequest.playerColor().equals("BLACK") && oldGameData.blackUsername() == null) {
             GameData newGameData = oldGameData.addBlackUser(authData.username());
             new MemoryGameDAO().updateGame(oldGameData, newGameData);
 
         } else {
             throw new AlreadyTakenException("Error: already taken");
         }
+    }
+
+    public void clear() {
+        new MemoryUserDAO().clear();
+        new MemoryAuthDAO().clear();
+        new MemoryGameDAO().clear();
     }
 }
