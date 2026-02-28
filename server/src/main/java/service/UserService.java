@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.*;
 import model.AuthData;
+import model.LoginRequest;
+import model.LogoutRequest;
 import model.UserData;
 
 import java.util.UUID;
@@ -11,7 +13,7 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
-    public model.AuthData register(UserData registerRequest) throws DataAccessException {
+    public AuthData register(UserData registerRequest) throws DataAccessException {
         if (registerRequest.password() == null || registerRequest.username() == null || registerRequest.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -29,7 +31,7 @@ public class UserService {
         }
     }
 
-    public model.AuthData login(model.LoginRequest loginRequest) throws DataAccessException {
+    public AuthData login(LoginRequest loginRequest) throws DataAccessException {
         if (loginRequest.password() == null || loginRequest.username() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -50,11 +52,11 @@ public class UserService {
         }
     }
 
-    public void logout(model.LogoutRequest logoutRequest) throws DataAccessException {
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         if (logoutRequest == null) {
             throw new UnauthorizedException("Error: unauthorized");
         } else if (logoutRequest.authToken() == null) {
-            return;
+            throw new UnauthorizedException("Error: unauthorized");
         }
 
         AuthData authData = new MemoryAuthDAO().getAuth(logoutRequest.authToken());

@@ -1,9 +1,6 @@
 package server;
 
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import handler.*;
 import io.javalin.*;
 
 public class Server {
@@ -15,6 +12,7 @@ public class Server {
                 .post("/user", new RegisterHandler())
                 .post("/session", new LoginHandler())
                 .delete("/session", new LogoutHandler())
+                .get("/game", new ListGamesHandler())
                 .delete("/db", new ClearHandler());
 
     }
