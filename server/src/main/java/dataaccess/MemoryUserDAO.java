@@ -22,4 +22,11 @@ public class MemoryUserDAO implements UserDAO{
         }
         return null;
     }
+
+    @Override
+    public void clear() {
+        userDataTable.clear();
+    }
+
+
 }
