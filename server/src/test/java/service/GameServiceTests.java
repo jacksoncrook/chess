@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
 
-    private static final GameService gameService = new GameService();
-    private static final UserService userService = new UserService();
+    private static final GameService GAME_SERVICE = new GameService();
+    private static final UserService USER_SERVICE = new UserService();
     private static UserData existingUser;
     private String existingAuth;
     private int existingGameID;
@@ -23,14 +23,14 @@ public class GameServiceTests {
 
     @BeforeEach
     public void setup() throws DataAccessException {
-        gameService.clear();
+        GAME_SERVICE.clear();
 
         //one user logged in with valid auth
-        AuthData regResult = userService.register(existingUser);
+        AuthData regResult = USER_SERVICE.register(existingUser);
         existingAuth = regResult.authToken();
 
         CreateGameRequest existingGameRequest = new CreateGameRequest(existingAuth, "existingGameName");
-        existingGameID = gameService.createGame(existingGameRequest).gameID();
+        existingGameID = GAME_SERVICE.createGame(existingGameRequest).gameID();
     }
 
     // ### UNIT TESTS ###
@@ -43,7 +43,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.createGame(newGameRequest);
+            GAME_SERVICE.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -59,7 +59,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.createGame(newGameRequest);
+            GAME_SERVICE.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -76,7 +76,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.createGame(newGameRequest);
+            GAME_SERVICE.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -93,7 +93,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GetGamesResult getGamesResult = gameService.listGames(getGamesRequest);
+            GetGamesResult getGamesResult = GAME_SERVICE.listGames(getGamesRequest);
             Assertions.assertNotNull(getGamesResult, "Game list wasn't properly returned");
         } catch (DataAccessException e) {
             exception = e;
@@ -110,7 +110,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GetGamesResult getGamesResult = gameService.listGames(getGamesRequest);
+            GetGamesResult getGamesResult = GAME_SERVICE.listGames(getGamesRequest);
             Assertions.assertNull(getGamesResult, "Invalid auth didn't return null");
         } catch (DataAccessException e) {
             exception = e;
@@ -128,7 +128,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.joinGame(joinGameRequest);
+            GAME_SERVICE.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -144,7 +144,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.joinGame(joinGameRequest);
+            GAME_SERVICE.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -160,7 +160,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.joinGame(joinGameRequest);
+            GAME_SERVICE.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -177,7 +177,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            gameService.joinGame(joinGameRequest);
+            GAME_SERVICE.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -194,13 +194,13 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         UserData secondExistingUser = new UserData("ExistingUserTwo", "existingUserPassword", "eu2@mail.com");
-        AuthData regResult = userService.register(secondExistingUser);
+        AuthData regResult = USER_SERVICE.register(secondExistingUser);
         String secondExistingAuth = regResult.authToken();
 
         JoinGameRequest secondJoinGameRequest = new JoinGameRequest("WHITE", existingGameID, secondExistingAuth);
 
         try {
-            gameService.joinGame(joinGameRequest);
+            GAME_SERVICE.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -208,7 +208,7 @@ public class GameServiceTests {
         Assertions.assertNull(exception, "Unexpected exception thrown");
 
         try {
-            gameService.joinGame(secondJoinGameRequest);
+            GAME_SERVICE.joinGame(secondJoinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -222,10 +222,10 @@ public class GameServiceTests {
     @Order(11)
     @DisplayName("Clear")
     public void clearSuccess() {
-        gameService.clear();
+        GAME_SERVICE.clear();
 
-        Assertions.assertTrue(MemoryGameDAO.gameDataTable.isEmpty(), "Game data table not empty");
-        Assertions.assertTrue(MemoryUserDAO.userDataTable.isEmpty(), "User data table not empty");
-        Assertions.assertTrue(MemoryAuthDAO.authDataTable.isEmpty(), "Auth data table not empty");
+        Assertions.assertTrue(MemoryGameDAO.AUTH_DATA_TABLE.isEmpty(), "Game data table not empty");
+        Assertions.assertTrue(MemoryUserDAO.USER_DATA_TABLE.isEmpty(), "User data table not empty");
+        Assertions.assertTrue(MemoryAuthDAO.AUTH_DATA_TABLE.isEmpty(), "Auth data table not empty");
     }
 }

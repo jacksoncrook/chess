@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryUserDAO implements UserDAO{
-    public static final Collection<UserData> userDataTable = new ArrayList<>();
+    public static final Collection<UserData> USER_DATA_TABLE = new ArrayList<>();
 
     @Override
     public void createUser(UserData userData) {
-        userDataTable.add(userData);
+        USER_DATA_TABLE.add(userData);
     }
 
     @Override
     public UserData getUser(String username) {
-        for (UserData userData : userDataTable) {
+        for (UserData userData : USER_DATA_TABLE) {
             if (userData.username().equals(username)) {
                 return userData;
             }
@@ -25,7 +25,7 @@ public class MemoryUserDAO implements UserDAO{
 
     @Override
     public void clear() {
-        userDataTable.clear();
+        USER_DATA_TABLE.clear();
     }
 
 
