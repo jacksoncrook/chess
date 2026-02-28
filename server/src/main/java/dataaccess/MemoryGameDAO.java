@@ -29,8 +29,9 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(GameData gameData) {
-
+    public void updateGame(GameData oldGameData, GameData newGameData) {
+        gameDataTable.remove(oldGameData);
+        gameDataTable.add(newGameData);
     }
 
     @Override

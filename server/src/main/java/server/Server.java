@@ -14,6 +14,7 @@ public class Server {
                 .delete("/session", new LogoutHandler())
                 .post("/game", new CreateGameHandler())
                 .get("/game", new ListGamesHandler())
+                .put("/game", new JoinGameHandler())
                 .delete("/db", new ClearHandler());
 
     }
