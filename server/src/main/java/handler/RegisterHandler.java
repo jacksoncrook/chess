@@ -9,7 +9,6 @@ public class RegisterHandler extends HTTPHandler {
     public Context ctx;
 
     public RegisterHandler() {
-        //ctx = context;
     }
 
     @Override
