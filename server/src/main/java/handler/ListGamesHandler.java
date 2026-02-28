@@ -3,19 +3,17 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
-import model.GameData;
 import model.GetGamesRequest;
+import model.GetGamesResult;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
-
-import java.util.Collection;
 
 public class ListGamesHandler extends HttpHandler {
     public GetGamesRequest fromJson(Context context) {
         return new GetGamesRequest(context.header("Authorization"));
     }
 
-    public String toJson(Collection<GameData> gameData) {
+    public String toJson(GetGamesResult gameData) {
         return new Gson().toJson(gameData);
     }
 
@@ -24,7 +22,7 @@ public class ListGamesHandler extends HttpHandler {
         GetGamesRequest getGamesRequest = fromJson(context);
 
         try {
-            Collection<GameData> gameList = new GameService().listGames(getGamesRequest);
+            GetGamesResult gameList = new GameService().listGames(getGamesRequest);
             context.status(200);
             context.json(toJson(gameList));
 

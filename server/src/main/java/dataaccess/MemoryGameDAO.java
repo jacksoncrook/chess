@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.GameData;
+import model.GetGamesResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +25,8 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public Collection<GameData> listGames() {
-        return gameDataTable;
+    public GetGamesResult listGames() {
+        return new GetGamesResult(gameDataTable);
     }
 
     @Override

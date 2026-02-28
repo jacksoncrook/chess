@@ -4,12 +4,10 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 
-import java.util.Collection;
-
 public class GameService {
     private static int gameIDCounter = 1000;
 
-    public Collection<GameData> listGames(GetGamesRequest getGamesRequest) throws DataAccessException {
+    public GetGamesResult listGames(GetGamesRequest getGamesRequest) throws DataAccessException {
         if (getGamesRequest == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
