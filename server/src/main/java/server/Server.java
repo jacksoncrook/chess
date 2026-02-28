@@ -9,9 +9,8 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", new RegisterHandler());
-
-        // Register your endpoints and exception handlers here.
+                .post("/user", new RegisterHandler())
+                .delete("/db", new ClearHandler());
 
     }
 
