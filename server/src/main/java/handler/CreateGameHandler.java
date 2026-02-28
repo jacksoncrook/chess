@@ -2,16 +2,13 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.ErrorMessage;
-import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
-import io.javalin.http.Handler;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 
-public class CreateGameHandler implements Handler {
+public class CreateGameHandler extends HttpHandler {
     public CreateGameRequest fromJson(Context context) {
         return new Gson().fromJson(context.body(), CreateGameRequest.class);
     }
@@ -31,17 +28,7 @@ public class CreateGameHandler implements Handler {
             context.json(toJson(createGameResult));
 
         } catch (DataAccessException e) {
-            ErrorMessage message = new ErrorMessage(e.getMessage());
-            String errorMessage = new Gson().toJson(message);
-
-            if (e.getClass() == UnauthorizedException.class) {
-                context.status(401);
-                context.json(errorMessage);
-
-            } else {
-                context.status(400);
-                context.result(errorMessage);
-            }
+            interpretException(e, context);
         }
     }
 }
