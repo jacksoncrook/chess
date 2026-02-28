@@ -23,16 +23,20 @@ public class RegisterHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         UserData registerRequest = fromJson(context);
+
         try {
             AuthData registerResult = new UserService().register(registerRequest);
             context.status(200);
             context.json(toJson(registerResult));
+
         } catch (DataAccessException e) {
             ErrorMessage message = new ErrorMessage(e.getMessage());
             String errorMessage = new Gson().toJson(message);
+
             if (e.getClass() == AlreadyTakenException.class) {
                 context.status(403);
                 context.json(errorMessage);
+
             } else {
                 context.status(400);
                 context.result(errorMessage);

@@ -13,6 +13,7 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
+
     public AuthData register(UserData registerRequest) throws DataAccessException {
         if (registerRequest.password() == null || registerRequest.username() == null || registerRequest.email() == null) {
             throw new BadRequestException("Error: bad request");
@@ -22,14 +23,19 @@ public class UserService {
 
         if (userData != null) {
             throw new AlreadyTakenException("Error: already taken");
+
         } else {
             new MemoryUserDAO().createUser(registerRequest);
+
             String authToken = generateToken();
             AuthData authData = new AuthData(authToken, registerRequest.username());
+
             new MemoryAuthDAO().createAuth(authData);
+
             return authData;
         }
     }
+
 
     public AuthData login(LoginRequest loginRequest) throws DataAccessException {
         if (loginRequest.password() == null || loginRequest.username() == null) {
@@ -45,16 +51,21 @@ public class UserService {
             throw new UnauthorizedException("Error: unauthorized");
 
         } else {
+
             String authToken = generateToken();
             AuthData authData = new AuthData(authToken, loginRequest.username());
+
             new MemoryAuthDAO().createAuth(authData);
+
             return authData;
         }
     }
 
+
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         if (logoutRequest == null) {
             throw new UnauthorizedException("Error: unauthorized");
+
         } else if (logoutRequest.authToken() == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }

@@ -24,16 +24,20 @@ public class CreateGameHandler implements Handler {
     public void handle(@NotNull Context context) {
         CreateGameRequest createGameRequest = fromJson(context);
         createGameRequest = createGameRequest.addAuth(context.header("Authorization"));
+
         try {
             CreateGameResult createGameResult = new GameService().createGame(createGameRequest);
             context.status(200);
             context.json(toJson(createGameResult));
+
         } catch (DataAccessException e) {
             ErrorMessage message = new ErrorMessage(e.getMessage());
             String errorMessage = new Gson().toJson(message);
+
             if (e.getClass() == UnauthorizedException.class) {
                 context.status(401);
                 context.json(errorMessage);
+
             } else {
                 context.status(400);
                 context.result(errorMessage);

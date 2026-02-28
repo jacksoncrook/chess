@@ -24,6 +24,7 @@ public class GameService {
         }
     }
 
+
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         if (createGameRequest == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -47,6 +48,7 @@ public class GameService {
             return new CreateGameResult(gameID);
         }
     }
+
 
     public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
         if (joinGameRequest == null) {
