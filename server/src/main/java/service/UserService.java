@@ -50,5 +50,20 @@ public class UserService {
         }
     }
 
-    public void logout(model.LogoutRequest logoutRequest) {}
+    public void logout(model.LogoutRequest logoutRequest) throws DataAccessException {
+        if (logoutRequest == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        } else if (logoutRequest.authToken() == null) {
+            return;
+        }
+
+        AuthData authData = new MemoryAuthDAO().getAuth(logoutRequest.authToken());
+
+        if (authData == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+
+        } else {
+            new MemoryAuthDAO().deleteAuth(authData);
+        }
+    }
 }
