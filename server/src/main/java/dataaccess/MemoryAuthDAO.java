@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryAuthDAO implements AuthDAO {
-    public static final Collection<AuthData> authDataTable = new ArrayList<>();
+    public static final Collection<AuthData> AUTH_DATA_TABLE = new ArrayList<>();
 
     @Override
     public void createAuth(AuthData authData) {
-        authDataTable.add(authData);
+        AUTH_DATA_TABLE.add(authData);
     }
 
     @Override
     public AuthData getAuth(String authToken) {
-        for (AuthData authData :authDataTable) {
+        for (AuthData authData : AUTH_DATA_TABLE) {
             if (authData.authToken().equals(authToken)) {
                 return authData;
             }
@@ -25,11 +25,11 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(AuthData authData) {
-        authDataTable.remove(authData);
+        AUTH_DATA_TABLE.remove(authData);
     }
 
     @Override
     public void clear() {
-        authDataTable.clear();
+        AUTH_DATA_TABLE.clear();
     }
 }

@@ -23,9 +23,11 @@ public class ChessBoard {
 
         for (int rowIndex = 0; rowIndex < 8; rowIndex++) {
             for (int colIndex = 0; colIndex < 8; colIndex++) {
+                boolean notNull = chessPieces[rowIndex][colIndex] != null;
+                boolean piecesEqual = notNull && (chessPieces[rowIndex][colIndex].equals(that.chessPieces[rowIndex][colIndex]));
                 if (chessPieces[rowIndex][colIndex] == null && that.chessPieces[rowIndex][colIndex] != null) {
                     return false;
-                } else if (chessPieces[rowIndex][colIndex] != null && !(chessPieces[rowIndex][colIndex].equals(that.chessPieces[rowIndex][colIndex]))) {
+                } else if (!piecesEqual) {
                     return false;
                 }
             }
@@ -71,10 +73,15 @@ public class ChessBoard {
     }
 
     public ChessPiece getPiece(ChessPosition position, ChessMove move) {
-        if (move == null) return getPiece(position);
-        else if (position.equals(move.getEndPosition())) return getPiece(move.getStartPosition());
-        else if (position.equals(move.getStartPosition())) return null;
-        else return getPiece(position);
+        if (move == null) {
+            return getPiece(position);
+        } else if (position.equals(move.getEndPosition())) {
+            return getPiece(move.getStartPosition());
+        } else if (position.equals(move.getStartPosition())) {
+            return null;
+        } else {
+            return getPiece(position);
+        }
     }
 
     /**
@@ -113,7 +120,5 @@ public class ChessBoard {
         // Add Kings
         addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING, false));
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING, false));
-
-
     }
 }

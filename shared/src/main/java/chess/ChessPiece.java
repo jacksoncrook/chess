@@ -86,7 +86,9 @@ public class ChessPiece {
     }
 
     public void promotePiece(PieceType newType) {
-        if (newType != null) type = newType;
+        if (newType != null) {
+            type = newType;
+        }
     }
 
     /**
