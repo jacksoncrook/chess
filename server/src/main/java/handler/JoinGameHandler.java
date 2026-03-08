@@ -8,6 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import service.GameService;
 
 public class JoinGameHandler extends HttpHandler {
+    public JoinGameHandler(String databaseType) {
+        super(databaseType);
+    }
+
     public JoinGameRequest fromJson(Context context) {
         return new Gson().fromJson(context.body(), JoinGameRequest.class);
     }
@@ -18,7 +22,7 @@ public class JoinGameHandler extends HttpHandler {
         joinGameRequest = joinGameRequest.addAuth(context.header("Authorization"));
 
         try {
-            new GameService().joinGame(joinGameRequest);
+            new GameService(databaseType).joinGame(joinGameRequest);
             context.status(200);
 
         } catch (DataAccessException e) {

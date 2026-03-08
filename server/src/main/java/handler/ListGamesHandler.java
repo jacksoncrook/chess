@@ -9,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import service.GameService;
 
 public class ListGamesHandler extends HttpHandler {
+    public ListGamesHandler(String databaseType) {
+        super(databaseType);
+    }
+
     public GetGamesRequest fromJson(Context context) {
         return new GetGamesRequest(context.header("Authorization"));
     }
@@ -22,7 +26,7 @@ public class ListGamesHandler extends HttpHandler {
         GetGamesRequest getGamesRequest = fromJson(context);
 
         try {
-            GetGamesResult gameList = new GameService().listGames(getGamesRequest);
+            GetGamesResult gameList = new GameService(databaseType).listGames(getGamesRequest);
             context.status(200);
             context.json(toJson(gameList));
 

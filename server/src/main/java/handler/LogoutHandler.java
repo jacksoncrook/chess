@@ -7,6 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import service.UserService;
 
 public class LogoutHandler extends HttpHandler {
+    public LogoutHandler(String databaseType) {
+        super(databaseType);
+    }
+
     public LogoutRequest fromJson(Context context) {
         return new LogoutRequest(context.header("Authorization"));
     }
@@ -16,7 +20,7 @@ public class LogoutHandler extends HttpHandler {
         LogoutRequest logoutRequest = fromJson(context);
 
         try {
-            new UserService().logout(logoutRequest);
+            new UserService(databaseType).logout(logoutRequest);
             context.status(200);
 
         } catch (DataAccessException e) {

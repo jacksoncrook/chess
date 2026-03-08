@@ -6,19 +6,34 @@ import model.*;
 
 public class GameService {
     private static int gameIDCounter = 1000;
+    private static AuthDAO authDAO;
+    private static GameDAO gameDAO;
+    private static UserDAO userDAO;
+
+    public GameService(String databaseType) {
+        if (databaseType != null && databaseType.equals("Memory")) {
+            authDAO = new MemoryAuthDAO();
+            gameDAO = new MemoryGameDAO();
+            userDAO = new MemoryUserDAO();
+        } else {
+            authDAO = new MySqlAuthDAO();
+            gameDAO = new MySqlGameDAO();
+            userDAO = new MySqlUserDAO();
+        }
+    }
 
     public GetGamesResult listGames(GetGamesRequest getGamesRequest) throws DataAccessException {
         if (getGamesRequest == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        AuthData authData = new MemoryAuthDAO().getAuth(getGamesRequest.authToken());
+        AuthData authData = authDAO.getAuth(getGamesRequest.authToken());
 
         if (authData == null) {
             throw new UnauthorizedException("Error: unauthorized");
 
         } else {
-            return new MemoryGameDAO().listGames();
+            return gameDAO.listGames();
         }
     }
 
@@ -28,7 +43,7 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        AuthData authData = new MemoryAuthDAO().getAuth(createGameRequest.authToken());
+        AuthData authData = authDAO.getAuth(createGameRequest.authToken());
 
         if (authData == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -37,7 +52,7 @@ public class GameService {
         int gameID = gameIDCounter++;
 
         GameData gameData = new GameData(gameID, null, null, createGameRequest.gameName(), new ChessGame());
-        new MemoryGameDAO().createGame(gameData);
+        gameDAO.createGame(gameData);
 
         return new CreateGameResult(gameID);
     }
@@ -56,21 +71,21 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        AuthData authData = new MemoryAuthDAO().getAuth(joinGameRequest.authToken());
+        AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
 
         if (authData == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        GameData oldGameData = new MemoryGameDAO().getGame(joinGameRequest.gameID());
+        GameData oldGameData = gameDAO.getGame(joinGameRequest.gameID());
 
         if (joinGameRequest.playerColor().equals("WHITE") && oldGameData.whiteUsername() == null) {
             GameData newGameData = oldGameData.addWhiteUser(authData.username());
-            new MemoryGameDAO().updateGame(oldGameData, newGameData);
+            gameDAO.updateGame(oldGameData, newGameData);
 
         } else if (joinGameRequest.playerColor().equals("BLACK") && oldGameData.blackUsername() == null) {
             GameData newGameData = oldGameData.addBlackUser(authData.username());
-            new MemoryGameDAO().updateGame(oldGameData, newGameData);
+            gameDAO.updateGame(oldGameData, newGameData);
 
         } else {
             throw new AlreadyTakenException("Error: already taken");
@@ -78,8 +93,8 @@ public class GameService {
     }
 
     public void clear() {
-        new MemoryUserDAO().clear();
-        new MemoryAuthDAO().clear();
-        new MemoryGameDAO().clear();
+        userDAO.clear();
+        authDAO.clear();
+        gameDAO.clear();
     }
 }

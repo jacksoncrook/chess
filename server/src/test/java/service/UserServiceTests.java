@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTests {
 
-    private static final GameService GAME_SERVICE = new GameService();
-    private static final UserService USER_SERVICE = new UserService();
+    private static final GameService GAME_SERVICE = new GameService("Memory");
+    private static final UserService USER_SERVICE = new UserService("Memory");
     private static UserData existingUser;
     private static LoginRequest existingUserLogin;
     private static UserData newUser;

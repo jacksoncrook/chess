@@ -9,6 +9,10 @@ import service.UserService;
 
 public class RegisterHandler extends HttpHandler {
 
+    public RegisterHandler(String databaseType) {
+        super(databaseType);
+    }
+
     public model.UserData fromJson(Context context) {
         return new Gson().fromJson(context.body(), UserData.class);
     }
@@ -22,7 +26,7 @@ public class RegisterHandler extends HttpHandler {
         UserData registerRequest = fromJson(context);
 
         try {
-            AuthData registerResult = new UserService().register(registerRequest);
+            AuthData registerResult = new UserService(databaseType).register(registerRequest);
             context.status(200);
             context.json(toJson(registerResult));
 

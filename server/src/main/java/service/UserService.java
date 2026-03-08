@@ -9,6 +9,19 @@ import model.UserData;
 import java.util.UUID;
 
 public class UserService {
+    private static AuthDAO authDAO;
+    private static UserDAO userDAO;
+
+    public UserService(String databaseType) {
+        if (databaseType != null && databaseType.equals("Memory")) {
+            authDAO = new MemoryAuthDAO();
+            userDAO = new MemoryUserDAO();
+        } else {
+            authDAO = new MySqlAuthDAO();
+            userDAO = new MySqlUserDAO();
+        }
+    }
+    
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
@@ -18,18 +31,18 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
 
-        UserData userData = new MemoryUserDAO().getUser(registerRequest.username());
+        UserData userData = userDAO.getUser(registerRequest.username());
 
         if (userData != null) {
             throw new AlreadyTakenException("Error: already taken");
 
         } else {
-            new MemoryUserDAO().createUser(registerRequest);
+            userDAO.createUser(registerRequest);
 
             String authToken = generateToken();
             AuthData authData = new AuthData(authToken, registerRequest.username());
 
-            new MemoryAuthDAO().createAuth(authData);
+            authDAO.createAuth(authData);
 
             return authData;
         }
@@ -41,7 +54,7 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
 
-        UserData userData = new MemoryUserDAO().getUser(loginRequest.username());
+        UserData userData = userDAO.getUser(loginRequest.username());
 
         if (userData == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -53,7 +66,7 @@ public class UserService {
         String authToken = generateToken();
         AuthData authData = new AuthData(authToken, loginRequest.username());
 
-        new MemoryAuthDAO().createAuth(authData);
+        authDAO.createAuth(authData);
 
         return authData;
 
@@ -65,12 +78,12 @@ public class UserService {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        AuthData authData = new MemoryAuthDAO().getAuth(logoutRequest.authToken());
+        AuthData authData = authDAO.getAuth(logoutRequest.authToken());
 
         if (authData == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        new MemoryAuthDAO().deleteAuth(authData);
+        authDAO.deleteAuth(authData);
     }
 }

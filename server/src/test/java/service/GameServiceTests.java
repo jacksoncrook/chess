@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
 
-    private static final GameService GAME_SERVICE = new GameService();
-    private static final UserService USER_SERVICE = new UserService();
+    private static final GameService GAME_SERVICE = new GameService("Memory");
+    private static final UserService USER_SERVICE = new UserService("Memory");
     private static UserData existingUser;
     private String existingAuth;
     private int existingGameID;
@@ -221,7 +221,7 @@ public class GameServiceTests {
     @Test
     @Order(11)
     @DisplayName("Clear")
-    public void clearSuccess() {
+    public void clearSuccessMemoryDAO() {
         GAME_SERVICE.clear();
 
         Assertions.assertTrue(MemoryGameDAO.AUTH_DATA_TABLE.isEmpty(), "Game data table not empty");

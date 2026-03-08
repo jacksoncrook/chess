@@ -10,6 +10,11 @@ import io.javalin.http.Handler;
 public abstract class HttpHandler implements Handler {
 
     record ErrorMessage(String message) {}
+    public static String databaseType;
+
+    public HttpHandler(String databaseType) {
+        HttpHandler.databaseType = databaseType;
+    }
 
     public void interpretException(DataAccessException e, Context context) {
         ErrorMessage message = new ErrorMessage(e.getMessage());

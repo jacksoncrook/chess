@@ -9,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import service.UserService;
 
 public class LoginHandler extends HttpHandler {
+    public LoginHandler(String databaseType) {
+        super(databaseType);
+    }
+
     public LoginRequest fromJson(Context context) {
         return new Gson().fromJson(context.body(), LoginRequest.class);
     }
@@ -22,7 +26,7 @@ public class LoginHandler extends HttpHandler {
         LoginRequest loginRequest = fromJson(context);
 
         try {
-            AuthData loginResult = new UserService().login(loginRequest);
+            AuthData loginResult = new UserService(databaseType).login(loginRequest);
             context.status(200);
             context.json(toJson(loginResult));
 
