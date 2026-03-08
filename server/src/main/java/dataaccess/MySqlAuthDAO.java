@@ -2,11 +2,17 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.sql.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class MySqlAuthDAO implements AuthDAO {
     public static final Collection<AuthData> AUTH_DATA_TABLE = new ArrayList<>();
+
+    public MySqlAuthDAO() throws DataAccessException {
+        configureDatabase();
+    }
 
     @Override
     public void createAuth(AuthData authData) {
@@ -29,7 +35,37 @@ public class MySqlAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void clear() {
-        AUTH_DATA_TABLE.clear();
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE auth";
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(String.format("Unable to empty database: %s", ex.getMessage()));
+        }
+    }
+
+
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+
+        String statement =
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+              `authToken` varchar(256) NOT NULL,
+              `username` varchar(256) NOT NULL,
+              PRIMARY KEY (authToken)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """;
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/server/src/main/java/dataaccess/MySqlAuthDAO.java" value="fd2b4ad5-6d54-4b19-8ad6-edb2d38ac225" />
+  </component>
+</project>
