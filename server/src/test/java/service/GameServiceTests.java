@@ -222,8 +222,15 @@ public class GameServiceTests {
     @Order(11)
     @DisplayName("Clear")
     public void clearSuccessMemoryDAO() {
-        GAME_SERVICE.clear();
+        DataAccessException exception = null;
 
+        try {
+            GAME_SERVICE.clear();
+        } catch (DataAccessException e) {
+            exception = e;
+        }
+
+        Assertions.assertNull(exception, "Unexpected exception thrown");
         Assertions.assertTrue(MemoryGameDAO.AUTH_DATA_TABLE.isEmpty(), "Game data table not empty");
         Assertions.assertTrue(MemoryUserDAO.USER_DATA_TABLE.isEmpty(), "User data table not empty");
         Assertions.assertTrue(MemoryAuthDAO.AUTH_DATA_TABLE.isEmpty(), "Auth data table not empty");
