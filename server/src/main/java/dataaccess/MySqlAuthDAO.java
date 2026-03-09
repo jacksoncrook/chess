@@ -4,34 +4,87 @@ import model.AuthData;
 
 import java.sql.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public class MySqlAuthDAO implements AuthDAO {
-    public static final Collection<AuthData> AUTH_DATA_TABLE = new ArrayList<>();
 
     public MySqlAuthDAO() throws DataAccessException {
         configureDatabase();
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-        AUTH_DATA_TABLE.add(authData);
-    }
+    public void createAuth(AuthData authData) throws DataAccessException {
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
 
-    @Override
-    public AuthData getAuth(String authToken) {
-        for (AuthData authData : AUTH_DATA_TABLE) {
-            if (authData.authToken().equals(authToken)) {
-                return authData;
-            }
+        if (!authData.authToken().matches("[a-fA-F0-9-]+")) {
+            throw new UnauthorizedException("Error: invalid authToken");
         }
-        return null;
+
+        if (!authData.username().matches("[a-zA-Z0-9-_]+")) {
+            throw new BadRequestException("Error: invalid username");
+        }
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authData.authToken());
+                preparedStatement.setString(2, authData.username());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(String.format("Unable to add authData to database: %s", ex.getMessage()));
+        }
     }
 
     @Override
-    public void deleteAuth(AuthData authData) {
-        AUTH_DATA_TABLE.remove(authData);
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        var statement = "SELECT authToken, username FROM auth WHERE authToken = ?";
+        String authTokenOut = null;
+        String username = null;
+
+        if (!authToken.matches("[a-fA-F0-9-]+")) {
+            throw new UnauthorizedException("Error: invalid authToken");
+        }
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        authTokenOut = rs.getString("authToken");
+                        username = rs.getString("username");
+                    }
+
+                    if (authTokenOut != null && username != null) {
+                        return new AuthData(authTokenOut, username);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(String.format("Unable to find authData in database: %s", ex.getMessage()));
+        }
+    }
+
+    @Override
+    public void deleteAuth(AuthData authData) throws DataAccessException {
+        var statement = "DELETE FROM auth WHERE authToken = ? AND username = ?";
+
+        if (!authData.authToken().matches("[a-fA-F0-9-]+")) {
+            throw new UnauthorizedException("Error: invalid authToken");
+        }
+
+        if (!authData.username().matches("[a-zA-Z0-9-_]+")) {
+            throw new DataAccessException("Error: invalid username");
+        }
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authData.authToken());
+                preparedStatement.setString(2, authData.username());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(String.format("Unable to remove authData from database: %s", ex.getMessage()));
+        }
     }
 
     @Override
