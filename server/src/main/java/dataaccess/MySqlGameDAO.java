@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
 import model.GetGamesResult;
 
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MySqlGameDAO implements GameDAO{
-    public static final Collection<GameData> AUTH_DATA_TABLE = new ArrayList<>();
 
     public MySqlGameDAO() throws DataAccessException {
         configureDatabase();
@@ -94,12 +92,12 @@ public class MySqlGameDAO implements GameDAO{
 
         Collection<GameData> gameDataOut = new ArrayList<>();
 
-        int gameIDOut = 0;
-        String whiteUsername = null;
-        String blackUsername = null;
-        String gameName = null;
+        int gameIDOut;
+        String whiteUsername;
+        String blackUsername;
+        String gameName;
         String game;
-        ChessGame chessGame = null;
+        ChessGame chessGame;
 
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -112,9 +110,7 @@ public class MySqlGameDAO implements GameDAO{
                         game = rs.getString("game");
                         chessGame = new Gson().fromJson(game, ChessGame.class);
 
-                        if (gameIDOut != 0) {
-                            gameDataOut.add(new GameData(gameIDOut, whiteUsername, blackUsername, gameName, chessGame));
-                        }
+                        gameDataOut.add(new GameData(gameIDOut, whiteUsername, blackUsername, gameName, chessGame));
                     }
                 }
             }
