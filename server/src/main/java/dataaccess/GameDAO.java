@@ -8,5 +8,5 @@ public interface GameDAO {
     GameData getGame(int gameID);
     GetGamesResult listGames();
     void updateGame(GameData oldGameData, GameData newGameData);
-    void clear();
+    void clear() throws DataAccessException;
 }
