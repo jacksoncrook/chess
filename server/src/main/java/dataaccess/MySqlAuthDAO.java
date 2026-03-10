@@ -73,7 +73,7 @@ public class MySqlAuthDAO implements AuthDAO {
         }
 
         if (!authData.username().matches("[a-zA-Z0-9-_]+")) {
-            throw new DataAccessException("Error: invalid username");
+            throw new BadRequestException("Error: invalid username");
         }
 
         try (Connection conn = DatabaseManager.getConnection()) {
