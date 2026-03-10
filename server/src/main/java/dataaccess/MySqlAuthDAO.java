@@ -29,7 +29,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to add authData to database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to add authData to database: %s", ex.getMessage()));
         }
     }
 
@@ -60,7 +60,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to find authData in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to find authData in database: %s", ex.getMessage()));
         }
     }
 
@@ -83,7 +83,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to remove authData from database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to remove authData from database: %s", ex.getMessage()));
         }
     }
 
@@ -96,7 +96,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to empty database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to empty database: %s", ex.getMessage()));
         }
     }
 
@@ -118,7 +118,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }

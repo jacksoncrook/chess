@@ -3,6 +3,7 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseException;
 import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -26,6 +27,10 @@ public abstract class HttpHandler implements Handler {
 
         } else if (e.getClass() == AlreadyTakenException.class) {
             context.status(403);
+            context.json(errorMessage);
+
+        } else if (e.getClass() == DatabaseException.class) {
+            context.status(500);
             context.json(errorMessage);
 
         } else {
