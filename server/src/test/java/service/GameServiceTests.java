@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
 
-    private static GameService GAME_SERVICE;
-    private static UserService USER_SERVICE;
+    private static GameService gameService;
+    private static UserService userService;
     private static UserData existingUser;
     private String existingAuth;
     private int existingGameID;
@@ -22,8 +22,8 @@ public class GameServiceTests {
 
         existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
         try {
-            GAME_SERVICE = new GameService("Memory");
-            USER_SERVICE = new UserService("Memory");
+            gameService = new GameService("Memory");
+            userService = new UserService("Memory");
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -33,14 +33,14 @@ public class GameServiceTests {
 
     @BeforeEach
     public void setup() throws DataAccessException {
-        GAME_SERVICE.clear();
+        gameService.clear();
 
         //one user logged in with valid auth
-        AuthData regResult = USER_SERVICE.register(existingUser);
+        AuthData regResult = userService.register(existingUser);
         existingAuth = regResult.authToken();
 
         CreateGameRequest existingGameRequest = new CreateGameRequest(existingAuth, "existingGameName");
-        existingGameID = GAME_SERVICE.createGame(existingGameRequest).gameID();
+        existingGameID = gameService.createGame(existingGameRequest).gameID();
     }
 
     // ### UNIT TESTS ###
@@ -53,7 +53,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.createGame(newGameRequest);
+            gameService.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -69,7 +69,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.createGame(newGameRequest);
+            gameService.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -86,7 +86,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.createGame(newGameRequest);
+            gameService.createGame(newGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -103,7 +103,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GetGamesResult getGamesResult = GAME_SERVICE.listGames(getGamesRequest);
+            GetGamesResult getGamesResult = gameService.listGames(getGamesRequest);
             Assertions.assertNotNull(getGamesResult, "Game list wasn't properly returned");
         } catch (DataAccessException e) {
             exception = e;
@@ -120,7 +120,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GetGamesResult getGamesResult = GAME_SERVICE.listGames(getGamesRequest);
+            GetGamesResult getGamesResult = gameService.listGames(getGamesRequest);
             Assertions.assertNull(getGamesResult, "Invalid auth didn't return null");
         } catch (DataAccessException e) {
             exception = e;
@@ -138,7 +138,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.joinGame(joinGameRequest);
+            gameService.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -154,7 +154,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.joinGame(joinGameRequest);
+            gameService.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -170,7 +170,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.joinGame(joinGameRequest);
+            gameService.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -187,7 +187,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.joinGame(joinGameRequest);
+            gameService.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -204,13 +204,13 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         UserData secondExistingUser = new UserData("ExistingUserTwo", "existingUserPassword", "eu2@mail.com");
-        AuthData regResult = USER_SERVICE.register(secondExistingUser);
+        AuthData regResult = userService.register(secondExistingUser);
         String secondExistingAuth = regResult.authToken();
 
         JoinGameRequest secondJoinGameRequest = new JoinGameRequest("WHITE", existingGameID, secondExistingAuth);
 
         try {
-            GAME_SERVICE.joinGame(joinGameRequest);
+            gameService.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -218,7 +218,7 @@ public class GameServiceTests {
         Assertions.assertNull(exception, "Unexpected exception thrown");
 
         try {
-            GAME_SERVICE.joinGame(secondJoinGameRequest);
+            gameService.joinGame(secondJoinGameRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -235,7 +235,7 @@ public class GameServiceTests {
         DataAccessException exception = null;
 
         try {
-            GAME_SERVICE.clear();
+            gameService.clear();
         } catch (DataAccessException e) {
             exception = e;
         }
