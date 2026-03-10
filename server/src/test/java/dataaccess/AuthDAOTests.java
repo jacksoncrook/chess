@@ -204,7 +204,7 @@ public class AuthDAOTests {
     public void deleteInvalidUsername() {
         DataAccessException exception = null;
 
-        String authToken = UUID.randomUUID().toString();;
+        String authToken = UUID.randomUUID().toString();
         String username = "bad usernamE+;[]";
 
         AuthData newUser = new AuthData(authToken, username);

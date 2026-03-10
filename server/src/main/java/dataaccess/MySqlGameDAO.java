@@ -47,7 +47,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to add authData to database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to add authData to database: %s", ex.getMessage()));
         }
     }
 
@@ -82,7 +82,7 @@ public class MySqlGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
         }
     }
 
@@ -115,7 +115,7 @@ public class MySqlGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
         }
         return new GetGamesResult(gameDataOut);
     }
@@ -129,6 +129,14 @@ public class MySqlGameDAO implements GameDAO{
             throw new BadRequestException("Error: gameIDs don't match");
         }
 
+        if (oldGameData.whiteUsername() != null && !oldGameData.whiteUsername().equals(newGameData.whiteUsername())) {
+            throw new AlreadyTakenException("Error: white team already taken");
+        }
+
+        if (oldGameData.blackUsername() != null && !oldGameData.blackUsername().equals(newGameData.blackUsername())) {
+            throw new AlreadyTakenException("Error: black team already taken");
+        }
+
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, newGameData.whiteUsername());
@@ -138,7 +146,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to update game in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to update game in database: %s", ex.getMessage()));
         }
     }
 
@@ -175,7 +183,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
