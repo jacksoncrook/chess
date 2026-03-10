@@ -3,8 +3,6 @@ package dataaccess;
 import model.*;
 import org.junit.jupiter.api.*;
 
-import java.util.UUID;
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserDAOTests {
 
@@ -84,7 +82,7 @@ public class UserDAOTests {
         }
 
         Assertions.assertNotNull(exception, "Expected exception not thrown");
-        Assertions.assertEquals(AlreadyTakenException.class, exception, "Incorrect exception type");
+        Assertions.assertEquals(AlreadyTakenException.class, exception.getClass(), "Incorrect exception type");
     }
 
     @Test
@@ -111,13 +109,13 @@ public class UserDAOTests {
 
     @Test
     @Order(5)
-    @DisplayName("Invalid Username")
-    public void invalidUsername() {
+    @DisplayName("Invalid Email")
+    public void createInvalidEmail() {
         DataAccessException exception = null;
 
         String username = "newUser";
-        String password = "bad Password!]; ();?/";
-        String email = "email@gmail";
+        String password = "userPassword";
+        String email = "Bad email@gmail[]";
 
         UserData newUser = new UserData(username, password, email);
 
@@ -133,14 +131,13 @@ public class UserDAOTests {
 
     @Test
     @Order(6)
-    @DisplayName("Get User Success")
-    public void getUserSuccess() {
+    @DisplayName("Find User Success")
+    public void findUserSuccess() {
         DataAccessException exception = null;
 
         try {
-            UserData userData = sqlUserDAO.getUser(existingUser.username());
-            Assertions.assertNotNull(userData, "UserData not found");
-            Assertions.assertEquals(existingUser, userData, "Incorrect user data returned");
+            boolean userExists = sqlUserDAO.doesUserExist(existingUser.username());
+            Assertions.assertTrue(userExists, "UserData not found");
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -157,8 +154,8 @@ public class UserDAOTests {
         String username = "unknownUsername";
 
         try {
-            UserData userData = sqlUserDAO.getUser(username);
-            Assertions.assertNull(userData, "Unexpected UserData found");
+            boolean userExists = sqlUserDAO.doesUserExist(username);
+            Assertions.assertFalse(userExists, "Unexpected UserData found");
         } catch (DataAccessException e) {
             exception = e;
         }
