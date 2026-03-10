@@ -257,12 +257,12 @@ public class GameDAOTests {
     public void updateWhiteTeamTaken() {
         DataAccessException exception = null;
 
-        int ID = existingGameData.gameID();
+        int gameID = existingGameData.gameID();
         String gameName = existingGameData.gameName();
         String blackUsername = existingGameData.blackUsername();
         ChessGame game = existingGameData.game();
 
-        GameData updatedGame = new GameData(ID, "WhiteUsername", blackUsername, gameName, game);
+        GameData updatedGame = new GameData(gameID, "WhiteUsername", blackUsername, gameName, game);
 
         try {
             sqlGameDAO.updateGame(existingGameData, updatedGame);
@@ -280,12 +280,12 @@ public class GameDAOTests {
     public void updateBlackTeamTaken() {
         DataAccessException exception = null;
 
-        int ID = existingGameData.gameID();
+        int gameID = existingGameData.gameID();
         String gameName = existingGameData.gameName();
         String whiteUsername = existingGameData.whiteUsername();
         ChessGame game = existingGameData.game();
 
-        GameData updatedGame = new GameData(ID, whiteUsername, "blackUsername", gameName, game);
+        GameData updatedGame = new GameData(gameID, whiteUsername, "blackUsername", gameName, game);
 
         try {
             sqlGameDAO.updateGame(existingGameData, updatedGame);

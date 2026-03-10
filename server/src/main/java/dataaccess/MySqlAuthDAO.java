@@ -76,10 +76,13 @@ public class MySqlAuthDAO implements AuthDAO {
             throw new BadRequestException("Error: invalid username");
         }
 
+        String authToken = authData.authToken();
+        String username = authData.username();
+
         try (Connection conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, authData.authToken());
-                preparedStatement.setString(2, authData.username());
+                preparedStatement.setString(1, authToken);
+                preparedStatement.setString(2, username);
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {

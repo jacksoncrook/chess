@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTests {
 
-    private static GameService GAME_SERVICE;
-    private static UserService USER_SERVICE;
+    private static GameService gameService;
+    private static UserService userService;
     private static UserData existingUser;
     private static LoginRequest existingUserLogin;
     private static UserData newUser;
@@ -26,8 +26,8 @@ public class UserServiceTests {
         newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
 
         try {
-            GAME_SERVICE = new GameService("Memory");
-            USER_SERVICE = new UserService("Memory");
+            gameService = new GameService("Memory");
+            userService = new UserService("Memory");
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -37,10 +37,10 @@ public class UserServiceTests {
 
     @BeforeEach
     public void setup() throws DataAccessException {
-        GAME_SERVICE.clear();
+        gameService.clear();
 
-        //one user already logged in
-        AuthData regResult = USER_SERVICE.register(existingUser);
+        //one userService already logged in
+        AuthData regResult = userService.register(existingUser);
         existingAuth = regResult.authToken();
     }
 
@@ -50,10 +50,10 @@ public class UserServiceTests {
     @Order(1)
     @DisplayName("Normal User Registration")
     public void registerSuccess() throws DataAccessException {
-        AuthData registerResult = USER_SERVICE.register(newUser);
+        AuthData registerResult = userService.register(newUser);
 
         Assertions.assertEquals(newUser.username(), registerResult.username(),
-                "Response did not give the same username as user");
+                "Response did not give the same username as userService");
         Assertions.assertNotNull(registerResult.authToken(), "Response did not return authentication String");
     }
 
@@ -62,7 +62,7 @@ public class UserServiceTests {
     @DisplayName("Duplicate User Registration")
     public void registerTwice() {
         try {
-            AuthData registerResult = USER_SERVICE.register(existingUser);
+            AuthData registerResult = userService.register(existingUser);
             Assertions.assertNull(registerResult, "Response was not null");
 
         } catch (DataAccessException e) {
@@ -83,7 +83,7 @@ public class UserServiceTests {
         for (UserData incompleteRegisterRequest : incompleteRegisterRequests) {
 
             try {
-                AuthData registerResult = USER_SERVICE.register(incompleteRegisterRequest);
+                AuthData registerResult = userService.register(incompleteRegisterRequest);
                 Assertions.assertNull(registerResult, "Response was not null");
 
             } catch (DataAccessException e) {
@@ -96,10 +96,10 @@ public class UserServiceTests {
     @Order(4)
     @DisplayName("Normal User Login")
     public void loginSuccess() throws DataAccessException {
-        AuthData loginResult = USER_SERVICE.login(existingUserLogin);
+        AuthData loginResult = userService.login(existingUserLogin);
 
         Assertions.assertEquals(existingUserLogin.username(), loginResult.username(),
-                "Response did not give the same username as user");
+                "Response did not give the same username as userService");
         Assertions.assertNotNull(loginResult.authToken(), "Response did not return authentication String");
     }
 
@@ -115,7 +115,7 @@ public class UserServiceTests {
         for (LoginRequest incompleteLoginRequest : incompleteLoginRequests) {
 
             try {
-                AuthData loginResult = USER_SERVICE.login(incompleteLoginRequest);
+                AuthData loginResult = userService.login(incompleteLoginRequest);
                 Assertions.assertNull(loginResult, "Response was not null");
 
             } catch (DataAccessException e) {
@@ -131,7 +131,7 @@ public class UserServiceTests {
         LoginRequest loginRequest = new LoginRequest(existingUserLogin.username(), "WRONG PASSWORD");
 
         try {
-            AuthData loginResult = USER_SERVICE.login(loginRequest);
+            AuthData loginResult = userService.login(loginRequest);
             Assertions.assertNull(loginResult, "Response was not null");
 
         } catch (DataAccessException e) {
@@ -146,7 +146,7 @@ public class UserServiceTests {
         LoginRequest loginRequest = new LoginRequest("unique username", existingUserLogin.password());
 
         try {
-            AuthData loginResult = USER_SERVICE.login(loginRequest);
+            AuthData loginResult = userService.login(loginRequest);
             Assertions.assertNull(loginResult, "Response was not null");
 
         } catch (DataAccessException e) {
@@ -161,7 +161,7 @@ public class UserServiceTests {
         LogoutRequest logoutRequest = new LogoutRequest(existingAuth);
 
         try {
-            USER_SERVICE.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             Assertions.assertNull(e, "Unexpected exception thrown");
         }
@@ -175,13 +175,13 @@ public class UserServiceTests {
         DataAccessException exception = null;
 
         try {
-            USER_SERVICE.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             Assertions.assertNull(e, "Unexpected exception thrown");
         }
 
         try {
-            USER_SERVICE.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
@@ -198,7 +198,7 @@ public class UserServiceTests {
         DataAccessException exception = null;
 
         try {
-            USER_SERVICE.logout(logoutRequest);
+            userService.logout(logoutRequest);
         } catch (DataAccessException e) {
             exception = e;
         }
