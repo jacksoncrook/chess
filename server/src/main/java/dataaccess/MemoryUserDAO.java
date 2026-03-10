@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.LoginRequest;
 import model.UserData;
 
 import java.util.ArrayList;
@@ -14,13 +15,23 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) {
+    public boolean doesUserExist(String username) {
         for (UserData userData : USER_DATA_TABLE) {
             if (userData.username().equals(username)) {
-                return userData;
+                return true;
             }
         }
-        return null;
+        return false;
+    }
+
+    @Override
+    public boolean verifyUser(LoginRequest loginRequest) {
+        for (UserData userData : USER_DATA_TABLE) {
+            if (userData.username().equals(loginRequest.username())) {
+                return userData.password().equals(loginRequest.password());
+            }
+        }
+        return false;
     }
 
     @Override

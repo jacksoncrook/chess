@@ -31,9 +31,9 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
 
-        UserData userData = userDAO.getUser(registerRequest.username());
+        boolean userExists = userDAO.doesUserExist(registerRequest.username());
 
-        if (userData != null) {
+        if (userExists) {
             throw new AlreadyTakenException("Error: already taken");
 
         } else {
@@ -54,12 +54,12 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
 
-        UserData userData = userDAO.getUser(loginRequest.username());
+        boolean userExists = userDAO.doesUserExist(loginRequest.username());
 
-        if (userData == null) {
+        if (!userExists) {
             throw new UnauthorizedException("Error: unauthorized");
 
-        } else if (!userData.password().equals(loginRequest.password())) {
+        } else if (!userDAO.verifyUser(loginRequest)) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
