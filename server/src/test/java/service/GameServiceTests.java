@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameServiceTests {
 
-    private static final GameService GAME_SERVICE = new GameService("Memory");
-    private static final UserService USER_SERVICE = new UserService("Memory");
+    private static GameService GAME_SERVICE;
+    private static UserService USER_SERVICE;
     private static UserData existingUser;
     private String existingAuth;
     private int existingGameID;
@@ -18,7 +18,17 @@ public class GameServiceTests {
 
     @BeforeAll
     public static void init() {
+        DataAccessException exception = null;
+
         existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
+        try {
+            GAME_SERVICE = new GameService("Memory");
+            USER_SERVICE = new UserService("Memory");
+        } catch (DataAccessException e) {
+            exception = e;
+        }
+
+        Assertions.assertNull(exception);
     }
 
     @BeforeEach
