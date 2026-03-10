@@ -12,17 +12,13 @@ public class UserService {
     private static AuthDAO authDAO;
     private static UserDAO userDAO;
 
-    public UserService(String databaseType) {
-        try {
-            if (databaseType != null && databaseType.equals("Memory")) {
-                authDAO = new MemoryAuthDAO();
-                userDAO = new MemoryUserDAO();
-            } else {
-                authDAO = new MySqlAuthDAO();
-                userDAO = new MySqlUserDAO();
-            }
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    public UserService(String databaseType) throws DataAccessException {
+        if (databaseType != null && databaseType.equals("Memory")) {
+            authDAO = new MemoryAuthDAO();
+            userDAO = new MemoryUserDAO();
+        } else {
+            authDAO = new MySqlAuthDAO();
+            userDAO = new MySqlUserDAO();
         }
     }
     

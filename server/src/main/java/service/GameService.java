@@ -10,19 +10,15 @@ public class GameService {
     private static GameDAO gameDAO;
     private static UserDAO userDAO;
 
-    public GameService(String databaseType) {
-        try {
-            if (databaseType != null && databaseType.equals("Memory")) {
-                authDAO = new MemoryAuthDAO();
-                gameDAO = new MemoryGameDAO();
-                userDAO = new MemoryUserDAO();
-            } else {
-                authDAO = new MySqlAuthDAO();
-                gameDAO = new MySqlGameDAO();
-                userDAO = new MySqlUserDAO();
-            }
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    public GameService(String databaseType) throws DataAccessException {
+        if (databaseType != null && databaseType.equals("Memory")) {
+            authDAO = new MemoryAuthDAO();
+            gameDAO = new MemoryGameDAO();
+            userDAO = new MemoryUserDAO();
+        } else {
+            authDAO = new MySqlAuthDAO();
+            gameDAO = new MySqlGameDAO();
+            userDAO = new MySqlUserDAO();
         }
     }
 
