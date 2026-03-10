@@ -47,7 +47,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DatabaseException(String.format("Unable to add authData to database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Error: Unable to add authData to database: %s", ex.getMessage()));
         }
     }
 
@@ -82,7 +82,7 @@ public class MySqlGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DatabaseException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Error: Unable to find gameID in database: %s", ex.getMessage()));
         }
     }
 
@@ -115,7 +115,7 @@ public class MySqlGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DatabaseException(String.format("Unable to find gameID in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Error: Unable to find gameID in database: %s", ex.getMessage()));
         }
         return new GetGamesResult(gameDataOut);
     }
@@ -146,7 +146,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DatabaseException(String.format("Unable to update game in database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Error: Unable to update game in database: %s", ex.getMessage()));
         }
     }
 
@@ -159,7 +159,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(String.format("Unable to empty database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to empty database: %s", ex.getMessage()));
         }
     }
 
@@ -183,7 +183,7 @@ public class MySqlGameDAO implements GameDAO{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            throw new DatabaseException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
