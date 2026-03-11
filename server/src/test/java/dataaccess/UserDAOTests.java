@@ -162,4 +162,40 @@ public class UserDAOTests {
 
         Assertions.assertNull(exception, "Unexpected exception thrown");
     }
+
+    @Test
+    @Order(8)
+    @DisplayName("Verify User Success")
+    public void verifyUserSuccess() {
+        DataAccessException exception = null;
+
+        LoginRequest loginRequest = new LoginRequest(existingUser.username(), existingUser.password());
+
+        try {
+            boolean userVerified = sqlUserDAO.verifyUser(loginRequest);
+            Assertions.assertTrue(userVerified, "User not verified");
+        } catch (DataAccessException e) {
+            exception = e;
+        }
+
+        Assertions.assertNull(exception, "Unexpected exception thrown");
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Verify User Incorrect Password")
+    public void verifyUserBadPassword() {
+        DataAccessException exception = null;
+
+        LoginRequest loginRequest = new LoginRequest(existingUser.username(), "wrong password");
+
+        try {
+            boolean userVerified = sqlUserDAO.verifyUser(loginRequest);
+            Assertions.assertFalse(userVerified, "Unexpected user verified");
+        } catch (DataAccessException e) {
+            exception = e;
+        }
+
+        Assertions.assertNull(exception, "Unexpected exception thrown");
+    }
 }
