@@ -2,14 +2,11 @@ package client;
 
 import java.util.Arrays;
 
-import com.google.gson.Gson;
 import model.*;
-import ui.State;
 
 public class PreloginClient implements Client {
     private String visitorName = null;
     private final ServerFacade server;
-    private State state = State.PRELOGIN;
 
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -21,22 +18,19 @@ public class PreloginClient implements Client {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "signin" -> signIn(params);
-                case "list" -> listPets();
-                case "signout" -> signOut();
-                case "adopt" -> adoptPet(params);
-                case "adoptall" -> adoptAllPets();
-                case "quit" -> "quit";
-                default -> help();
+                case "l", "login" -> login(params);
+                case "r", "register" -> register();
+                case "q", "quit", "e", "x", "exit" -> "quit";
+                case "h", "help" -> help();
+                default -> unknownCommand();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
     }
 
-    public String signIn(String... params) throws Exception {
+    public String login(String... params) throws Exception {
         if (params.length >= 1) {
-            state = State.POSTLOGIN;
             visitorName = String.join("-", params);
             //ws.enterPetShop(visitorName);
             return String.format("You signed in as %s.", visitorName);
@@ -44,79 +38,25 @@ public class PreloginClient implements Client {
         throw new Exception("Expected: <yourname>");
     }
 
-    public String listPets() throws Exception {
-        assertSignedIn();
-        GetGamesResult gameList = server.listGames();
-        var result = new StringBuilder();
-        var gson = new Gson();
-        for (GameData gameData : gameList.games()) {
-            result.append(gson.toJson(gameData)).append('\n');
-        }
-        return result.toString();
-    }
 
-    public String adoptPet(String... params) throws Exception {
-        assertSignedIn();
-        if (params.length == 1) {
-            try {
-                int id = Integer.parseInt(params[0]);
-                GameData pet = getPet(id);
-                if (pet != null) {
-                    server.deletePet(id);
-                    return String.format("%s says %s", "cat", "meow");
-                }
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        throw new Exception("Expected: <pet id>");
-    }
-
-    public String adoptAllPets() throws Exception {
-        assertSignedIn();
-        var buffer = new StringBuilder();
-        for (var i : server.listGames().games()) {
-            buffer.append(String.format("%s says", i.toString()));
-        }
-
-        server.deleteAllPets();
-        return buffer.toString();
-    }
-
-    public String signOut() throws Exception {
-        assertSignedIn();
-        state = State.PRELOGIN;
+    public String register() throws Exception {
+        //ws.register(visitorName);
         return String.format("%s left the shop", visitorName);
     }
 
-    private GameData getPet(int id) throws Exception {
-        for (GameData gameData : server.listGames().games()) {
-            if (gameData.gameID() == id) {
-                return gameData;
-            }
-        }
-        return null;
-    }
 
     public String help() {
-        if (state == State.PRELOGIN) {
-            return """
-                    - signIn <yourname>
-                    - quit
-                    """;
-        }
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
-                """;
+            - login
+            - register
+            - help
+            - quit
+            """;
     }
 
-    private void assertSignedIn() throws Exception {
-        if (state == State.PRELOGIN) {
-            throw new Exception("You must sign in");
-        }
+    public String unknownCommand() {
+        return """
+                Unknown Command:
+               """ + help();
     }
 }

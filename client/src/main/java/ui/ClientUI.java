@@ -9,9 +9,8 @@ import static ui.EscapeSequences.RESET_BG_COLOR;
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class ClientUI {
-    private State state = State.PRELOGIN;
     private Client currentClient;
-    private String serverUrl;
+    private final String serverUrl;
 
     public ClientUI(String serverUrl) {
         this.serverUrl = serverUrl;
