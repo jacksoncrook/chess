@@ -1,15 +1,12 @@
 package client;
 
 import java.util.Arrays;
-import java.util.Scanner;
 
 import com.google.gson.Gson;
 import model.*;
 import ui.State;
 
-import static ui.EscapeSequences.*;
-
-public class PreloginClient {
+public class PreloginClient implements Client {
     private String visitorName = null;
     private final ServerFacade server;
     private State state = State.PRELOGIN;
@@ -17,38 +14,6 @@ public class PreloginClient {
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
-
-    public void run() {
-        System.out.println(" Welcome to the pet store. Sign in to start.");
-        System.out.print(help());
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = eval(line);
-                System.out.print(result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
-        }
-        System.out.println();
-    }
-
-
-    public void notify(String message) {
-        System.out.println(message);
-        printPrompt();
-    }
-
-    private void printPrompt() {
-        System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
-    }
-
 
     public String eval(String input) {
         try {

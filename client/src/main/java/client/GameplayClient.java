@@ -6,12 +6,8 @@ import model.GetGamesResult;
 import ui.State;
 
 import java.util.Arrays;
-import java.util.Scanner;
 
-import static ui.EscapeSequences.RESET_BG_COLOR;
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
-
-public class GameplayClient {
+public class GameplayClient implements Client {
     private String visitorName = null;
     private final ServerFacade server;
     private State state = State.PRELOGIN;
@@ -19,38 +15,6 @@ public class GameplayClient {
     public GameplayClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
-
-    public void run() {
-        System.out.println(" Welcome to the pet store. Sign in to start.");
-        System.out.print(help());
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = eval(line);
-                System.out.print(result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
-        }
-        System.out.println();
-    }
-
-
-    public void notify(String message) {
-        System.out.println(message);
-        printPrompt();
-    }
-
-    private void printPrompt() {
-        System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
-    }
-
 
     public String eval(String input) {
         try {
