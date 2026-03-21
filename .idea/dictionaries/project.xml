@@ -2,6 +2,9 @@
   <dictionary name="project">
     <words>
       <w>jdbc</w>
+      <w>postlogin</w>
+      <w>prelogin</w>
+      <w>yourname</w>
     </words>
   </dictionary>
 </component>
