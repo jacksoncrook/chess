@@ -1,6 +1,8 @@
 package ui;
 
-public record ClientResult(Type type, String message) {
+import model.AuthData;
+
+public record ClientResult(Type type, String message, AuthData authData) {
     public enum Type {
         PRELOGIN,
         POSTLOGIN,

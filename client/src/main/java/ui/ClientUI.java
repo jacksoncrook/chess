@@ -4,6 +4,7 @@ import client.Client;
 import client.GameplayClient;
 import client.PostloginClient;
 import client.PreloginClient;
+import model.AuthData;
 
 import java.util.Scanner;
 
@@ -27,7 +28,7 @@ public class ClientUI {
 
 
         Scanner scanner = new Scanner(System.in);
-        var result = new ClientResult(null, "");
+        var result = new ClientResult(null, "", null);
         while (!result.message().equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
@@ -41,10 +42,11 @@ public class ClientUI {
             }
 
             if (result.type() != currentClientType) {
+                AuthData authData = result.authData();
                 switch (result.type()) {
                     case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
-                    case POSTLOGIN -> currentClient = new PostloginClient(serverUrl);
-                    case GAMEPLAY -> currentClient = new GameplayClient(serverUrl);
+                    case POSTLOGIN -> currentClient = new PostloginClient(serverUrl, authData);
+                    case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData);
                 }
                 currentClientType = result.type();
             }

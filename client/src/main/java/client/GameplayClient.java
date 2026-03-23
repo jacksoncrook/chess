@@ -2,6 +2,7 @@ package client;
 
 import java.util.Arrays;
 
+import model.AuthData;
 import ui.ClientResult;
 import ui.ClientResult.*;
 
@@ -10,9 +11,11 @@ import static ui.ClientResult.Type.*;
 public class GameplayClient extends Client {
     private final ServerFacade server;
     private final Type type = GAMEPLAY;
+    private AuthData authData;
 
-    public GameplayClient(String serverUrl) {
+    public GameplayClient(String serverUrl, AuthData authData) {
         server = new ServerFacade(serverUrl);
+        this.authData = authData;
     }
 
     public ClientResult eval(String input) {
@@ -22,18 +25,17 @@ public class GameplayClient extends Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "l", "logout" -> logout();
-                case "q", "quit" -> new ClientResult(null, "quit");
                 case "h", "help" -> help();
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return new ClientResult(GAMEPLAY, ex.getMessage());
+            return new ClientResult(GAMEPLAY, ex.getMessage(), authData);
         }
     }
 
     public ClientResult logout() throws Exception {
         String message = String.format("%s left the shop", "you");
-        return new ClientResult(PRELOGIN, message);
+        return new ClientResult(PRELOGIN, message, null);
     }
 
 
@@ -44,6 +46,6 @@ public class GameplayClient extends Client {
                 - logout
                 - quit
                 """;
-        return new ClientResult(GAMEPLAY, helpMessage);
+        return new ClientResult(GAMEPLAY, helpMessage, authData);
     }
 }

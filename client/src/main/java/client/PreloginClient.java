@@ -2,13 +2,14 @@ package client;
 
 import java.util.Arrays;
 
+import model.*;
+
 import ui.ClientResult;
 import ui.ClientResult.Type;
 
 import static ui.ClientResult.Type.*;
 
 public class PreloginClient extends Client {
-    private String visitorName = null;
     private final ServerFacade server;
     private final Type type = PRELOGIN;
 
@@ -23,35 +24,35 @@ public class PreloginClient extends Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "l", "login" -> login(params);
-                case "r", "register" -> register();
-                case "q", "quit", "e", "x", "exit" -> new ClientResult(null, "quit");
+                case "r", "register" -> register(params);
+                case "q", "quit", "exit" -> new ClientResult(null, "quit", null);
                 case "h", "help" -> help();
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return new ClientResult(PRELOGIN, ex.getMessage());
+            return new ClientResult(PRELOGIN, ex.getMessage(), null);
         }
     }
 
     public ClientResult login(String... params) throws Exception {
-        if (params.length >= 1) {
-            visitorName = String.join("-", params);
-            //ws.enterPetShop(visitorName);
-            String message = String.format("You signed in as %s.", visitorName);
-            return new ClientResult(POSTLOGIN, message);
+        if (params.length == 2) {
+            LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
+            AuthData loginResult = server.login(loginRequest);
+            String message = String.format("You signed in as %s.", loginResult.username());
+            return new ClientResult(POSTLOGIN, message, loginResult);
         }
-        throw new Exception("Expected: <yourname>");
+        throw new Exception("Expected: <username> <password>");
     }
 
 
     public ClientResult register(String... params) throws Exception {
-        if (params.length >= 1) {
-            visitorName = String.join("-", params);
-            //ws.enterPetShop(visitorName);
-            String message = String.format("You registered as %s.", visitorName);
-            return new ClientResult(POSTLOGIN, message);
+        if (params.length == 3) {
+            UserData registerRequest = new UserData(params[0], params[1], params[2]);
+            AuthData registerResult = server.register(registerRequest);
+            String message = String.format("You registered as %s.", registerResult.username());
+            return new ClientResult(POSTLOGIN, message, registerResult);
         }
-        throw new Exception("Expected: <yourname>");
+        throw new Exception("Expected: <username> <password> <email>");
     }
 
 
@@ -62,6 +63,6 @@ public class PreloginClient extends Client {
             - help
             - quit
             """;
-        return new ClientResult(GAMEPLAY, helpMessage);
+        return new ClientResult(PRELOGIN, helpMessage, null);
     }
 }
