@@ -11,10 +11,10 @@ import static ui.ClientResult.Type.*;
 
 public class PreloginClient extends Client {
     private final ServerFacade server;
-    private final Type type = PRELOGIN;
 
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
+        type = PRELOGIN;
     }
 
     public ClientResult eval(String input) {
