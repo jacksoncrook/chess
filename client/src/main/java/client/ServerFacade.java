@@ -79,8 +79,12 @@ public class ServerFacade {
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws Exception {
-        var status = response.statusCode();
+        int status = response.statusCode();
         if (!isSuccessful(status)) {
+            if (status / 100 == 5) {
+                throw new RequestException("Internal Server Error");
+            }
+
             var body = response.body();
             if (body != null) {
                 throw new RequestException(body);
