@@ -13,12 +13,14 @@ public class GameplayClient extends Client {
     private final AuthData authData;
     private final int currentGameID;
     private final String currentGameIDString;
+    private final String currentTeam;
 
-    public GameplayClient(String serverUrl, AuthData authData, String gameID) {
+    public GameplayClient(String serverUrl, AuthData authData, String gameID, String teamColor) {
         server = new ServerFacade(serverUrl);
         this.authData = authData;
         this.currentGameIDString = gameID;
         this.currentGameID = Integer.parseInt(gameID);
+        this.currentTeam = teamColor;
         type = GAMEPLAY;
     }
 
@@ -33,14 +35,14 @@ public class GameplayClient extends Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "m", "move" -> makeMove(params);
-                case "l", "logout" -> logout();
+                case "logout" -> logout();
                 case "h", "help" -> help();
                 case "r", "ref", "refresh", "redraw" -> redraw();
                 case "menu" -> menu();
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return new ClientResult(GAMEPLAY, ex.getMessage(), authData, currentGameIDString);
+            return new ClientResult(GAMEPLAY, ex.getMessage(), authData, currentGameIDString, currentTeam);
         }
     }
 
@@ -71,12 +73,12 @@ public class GameplayClient extends Client {
         }
 
         result.append(currentGame);
-        return new ClientResult(GAMEPLAY, result.toString(), authData, currentGameIDString);
+        return new ClientResult(GAMEPLAY, result.toString(), authData, currentGameIDString, currentTeam);
     }
 
     public ClientResult makeMove(String... params) {
         String message = "Movement has not been implemented: " + params[0];
-        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString);
+        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, currentTeam);
     }
 
     public ClientResult help() {
@@ -84,8 +86,7 @@ public class GameplayClient extends Client {
                 - help
                 - redraw
                 - logout
-                - menu
-                """;
-        return new ClientResult(GAMEPLAY, helpMessage, authData);
+                - menu""";
+        return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
     }
 }

@@ -60,8 +60,7 @@ public class PreloginClient extends Client {
             - login
             - register
             - help
-            - quit
-            """;
+            - quit""";
         return new ClientResult(PRELOGIN, helpMessage, null);
     }
 }

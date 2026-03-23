@@ -19,6 +19,6 @@ public abstract class Client {
         String unknownCommandMessage = """
                 Unknown Command:
                """ + help.message();
-        return new ClientResult(type, unknownCommandMessage, help.authData());
+        return new ClientResult(type, unknownCommandMessage, help.authData(), help.gameID(), help.teamColor());
     }
 }

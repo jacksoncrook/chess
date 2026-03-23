@@ -47,13 +47,13 @@ public class ClientUI {
                     switch (result.type()) {
                         case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
                         case POSTLOGIN -> currentClient = new PostloginClient(serverUrl, authData);
-                        case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData, result.gameID());
+                        case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData, result.gameID(), result.teamColor());
                     }
                 }
                 currentClientType = result.type();
 
                 if (result.message() == null) {
-                    result = new ClientResult(result.type(), "", result.authData());
+                    result = new ClientResult(result.type(), "", result.authData(), result.gameID(), result.teamColor());
                 }
             }
         }

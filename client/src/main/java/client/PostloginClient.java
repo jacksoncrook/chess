@@ -26,7 +26,7 @@ public class PostloginClient extends Client {
             return switch (cmd) {
                 case "l", "list" -> listGames();
                 case "logout" -> logout();
-                case "j", "join" -> joinGame(params);
+                case "j", "join", "r", "rejoin" -> joinGame(params);
                 case "o", "obs", "observe" -> observeGame(params);
                 case "c", "create" -> createGame(params);
                 case "h", "help" -> help();
@@ -53,7 +53,7 @@ public class PostloginClient extends Client {
                 result.append(gameData.blackUsername());
             }
             result.append("\n\n");
-            
+
             i++;
         }
 
@@ -79,17 +79,27 @@ public class PostloginClient extends Client {
             GameData gameData = gameList.get(id - 1);
             int joinGameID = gameData.gameID();
 
+            boolean rejoining = false;
+
             String teamColor = params[1];
             if (teamColor.equals("w") || teamColor.equals("white")) {
                 teamColor = "WHITE";
+                rejoining = (gameData.whiteUsername() != null && gameData.whiteUsername().equals(authData.username()));
+
             } else if (teamColor.equals("b") || teamColor.equals("black")) {
                 teamColor = "BLACK";
+                rejoining = (gameData.blackUsername() != null && gameData.blackUsername().equals(authData.username()));
+            }
+
+            if (rejoining) {
+                String message = String.format("Successfully rejoined game %d: %s", id, gameData.gameName());
+                return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), teamColor);
             }
 
             JoinGameRequest request = new JoinGameRequest(teamColor, joinGameID, authData.authToken());
             server.joinGame(request);
             String message = String.format("Successfully joined game %d: %s", id, gameData.gameName());
-            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID));
+            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), teamColor);
         }
         throw new Exception("Expected: <game id> <black/white>");
     }
@@ -102,7 +112,7 @@ public class PostloginClient extends Client {
             int joinGameID = gameData.gameID();
 
             String message = String.format("Now observing game %d: %s", id, gameData.gameName());
-            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID));
+            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), "WHITE");
         }
         throw new Exception("Expected: <game id>");
     }
@@ -121,8 +131,7 @@ public class PostloginClient extends Client {
                 - create
                 - join
                 - observe
-                - logout
-                """;
+                - logout""";
         return new ClientResult(POSTLOGIN, helpMessage, authData);
     }
 
