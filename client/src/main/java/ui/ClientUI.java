@@ -24,7 +24,7 @@ public class ClientUI {
 
     public void run() {
         System.out.println("Welcome to Chess! Register or sign in to start");
-        System.out.print(currentClient.help());
+        System.out.print(currentClient.help().message());
 
 
         Scanner scanner = new Scanner(System.in);
@@ -43,20 +43,21 @@ public class ClientUI {
 
             if (result.type() != currentClientType) {
                 AuthData authData = result.authData();
-                switch (result.type()) {
-                    case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
-                    case POSTLOGIN -> currentClient = new PostloginClient(serverUrl, authData);
-                    case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData);
+                if (result.type() != null) {
+                    switch (result.type()) {
+                        case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
+                        case POSTLOGIN -> currentClient = new PostloginClient(serverUrl, authData);
+                        case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData);
+                    }
                 }
                 currentClientType = result.type();
+
+                if (result.message() == null) {
+                    result = new ClientResult(result.type(), "", result.authData());
+                }
             }
         }
         System.out.println();
-    }
-
-    public void notify(String message) {
-        System.out.println(message);
-        printPrompt();
     }
 
     private void printPrompt() {
