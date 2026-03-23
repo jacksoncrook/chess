@@ -1,6 +1,8 @@
 package ui;
 
 import client.Client;
+import client.GameplayClient;
+import client.PostloginClient;
 import client.PreloginClient;
 
 import java.util.Scanner;
@@ -10,29 +12,41 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class ClientUI {
     private Client currentClient;
+    private ClientResult.Type currentClientType;
     private final String serverUrl;
 
     public ClientUI(String serverUrl) {
         this.serverUrl = serverUrl;
         currentClient = new PreloginClient(serverUrl);
+        currentClientType = currentClient.getType();
     }
 
     public void run() {
         System.out.println("Welcome to Chess! Register or sign in to start");
         System.out.print(currentClient.help());
 
+
         Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
+        var result = new ClientResult(null, "");
+        while (!result.message().equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
                 result = currentClient.eval(line);
-                System.out.print(result);
+                System.out.print(result.message());
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
+            }
+
+            if (result.type() != currentClientType) {
+                switch (result.type()) {
+                    case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
+                    case POSTLOGIN -> currentClient = new PostloginClient(serverUrl);
+                    case GAMEPLAY -> currentClient = new GameplayClient(serverUrl);
+                }
+                currentClientType = result.type();
             }
         }
         System.out.println();

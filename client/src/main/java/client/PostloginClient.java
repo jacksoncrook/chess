@@ -3,18 +3,24 @@ package client;
 import com.google.gson.Gson;
 import model.GameData;
 import model.GetGamesResult;
+import ui.ClientResult;
 
 import java.util.Arrays;
 
-public class PostloginClient implements Client {
+import ui.ClientResult.Type;
+
+import static ui.ClientResult.Type.*;
+
+public class PostloginClient extends Client {
     private final ServerFacade server;
+    private final Type type = POSTLOGIN;
 
     public PostloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
 
 
-    public String eval(String input) {
+    public ClientResult eval(String input) {
         try {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -23,41 +29,43 @@ public class PostloginClient implements Client {
                 case "list" -> listGames();
                 case "logout" -> logout();
                 case "join" -> joinGame(params);
-                case "quit" -> "quit";
+                case "quit" -> new ClientResult(null, "quit");
                 case "h", "help" -> help();
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return ex.getMessage();
+            return new ClientResult(POSTLOGIN, ex.getMessage());
         }
     }
 
 
-    public String listGames() throws Exception {
+    public ClientResult listGames() throws Exception {
         GetGamesResult gameList = server.listGames();
         var result = new StringBuilder();
         var gson = new Gson();
         for (GameData gameData : gameList.games()) {
             result.append(gson.toJson(gameData)).append('\n');
         }
-        return result.toString();
+        return new ClientResult(POSTLOGIN, result.toString());
     }
 
-    public String joinGame(String... params) throws Exception {
+    public ClientResult joinGame(String... params) throws Exception {
         if (params.length == 1) {
             int id = Integer.parseInt(params[0]);
-            return String.format("%s says %s", "cat", "meow");
+            String message = String.format("%s says %s", "cat", "meow");
+            return new ClientResult(GAMEPLAY, message);
         }
         throw new Exception("Expected: <pet id>");
     }
 
 
-    public String logout() throws Exception {
-        return String.format("%s left the shop", "you");
+    public ClientResult logout() throws Exception {
+        String message = String.format("%s left the shop", "you");
+        return new ClientResult(PRELOGIN, message);
     }
 
-    public String help() {
-        return """
+    public ClientResult help() {
+        String helpMessage = """
                 - help
                 - list
                 - create
@@ -66,11 +74,6 @@ public class PostloginClient implements Client {
                 - logout
                 - quit
                 """;
-    }
-
-    public String unknownCommand() {
-        return """
-                Unknown Command:
-               """ + help();
+        return new ClientResult(GAMEPLAY, helpMessage);
     }
 }

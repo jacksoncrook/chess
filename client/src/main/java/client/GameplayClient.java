@@ -2,46 +2,48 @@ package client;
 
 import java.util.Arrays;
 
-public class GameplayClient implements Client {
+import ui.ClientResult;
+import ui.ClientResult.*;
+
+import static ui.ClientResult.Type.*;
+
+public class GameplayClient extends Client {
     private final ServerFacade server;
+    private final Type type = GAMEPLAY;
 
     public GameplayClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input) {
+    public ClientResult eval(String input) {
         try {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "l", "logout" -> logout();
-                case "q", "quit" -> "quit";
+                case "q", "quit" -> new ClientResult(null, "quit");
                 case "h", "help" -> help();
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return ex.getMessage();
+            return new ClientResult(GAMEPLAY, ex.getMessage());
         }
     }
 
-    public String logout() throws Exception {
-        return String.format("%s left the shop", "you");
+    public ClientResult logout() throws Exception {
+        String message = String.format("%s left the shop", "you");
+        return new ClientResult(PRELOGIN, message);
     }
 
 
-    public String help() {
-        return """
+    public ClientResult help() {
+        String helpMessage = """
                 - help
                 - redraw
                 - logout
                 - quit
                 """;
-    }
-
-    public String unknownCommand() {
-        return """
-                Unknown Command:
-               """ + help();
+        return new ClientResult(GAMEPLAY, helpMessage);
     }
 }
