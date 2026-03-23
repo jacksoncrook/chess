@@ -2,7 +2,6 @@ package client;
 
 import java.util.Arrays;
 
-import chess.ChessGame;
 import model.*;
 import ui.ClientResult;
 import ui.ClientResult.*;
@@ -13,15 +12,21 @@ public class GameplayClient extends Client {
     private final ServerFacade server;
     private final AuthData authData;
     private final int currentGameID;
+    private final String currentGameIDString;
 
-    public GameplayClient(String serverUrl, AuthData authData, int gameID) {
+    public GameplayClient(String serverUrl, AuthData authData, String gameID) {
         server = new ServerFacade(serverUrl);
         this.authData = authData;
-        this.currentGameID = gameID;
+        this.currentGameIDString = gameID;
+        this.currentGameID = Integer.parseInt(gameID);
         type = GAMEPLAY;
     }
 
     public ClientResult eval(String input) {
+        if (currentGameIDString == null) {
+            return new ClientResult(POSTLOGIN, "Error: invalid Game ID", authData);
+        }
+
         try {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -34,7 +39,7 @@ public class GameplayClient extends Client {
                 default -> unknownCommand();
             };
         } catch (Exception ex) {
-            return new ClientResult(GAMEPLAY, ex.getMessage(), authData);
+            return new ClientResult(GAMEPLAY, ex.getMessage(), authData, currentGameIDString);
         }
     }
 
@@ -65,7 +70,7 @@ public class GameplayClient extends Client {
         }
 
         result.append(currentGame);
-        return new ClientResult(POSTLOGIN, result.toString(), authData);
+        return new ClientResult(GAMEPLAY, result.toString(), authData, currentGameIDString);
     }
 
     public ClientResult help() {

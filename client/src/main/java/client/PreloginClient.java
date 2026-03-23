@@ -5,7 +5,6 @@ import java.util.Arrays;
 import model.*;
 
 import ui.ClientResult;
-import ui.ClientResult.Type;
 
 import static ui.ClientResult.Type.*;
 

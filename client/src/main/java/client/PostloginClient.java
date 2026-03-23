@@ -1,6 +1,5 @@
 package client;
 
-import com.google.gson.Gson;
 import model.*;
 
 import ui.ClientResult;
@@ -50,7 +49,8 @@ public class PostloginClient extends Client {
         if (params.length == 1) {
             CreateGameRequest request = new CreateGameRequest(authData.authToken(), params[0]);
             CreateGameResult createGameResult = server.createGame(request);
-            String message = String.format("New game id is %d", createGameResult.gameID());
+            String gameID = String.valueOf(createGameResult.gameID());
+            String message = String.format("New game id is %s", gameID);
             return new ClientResult(POSTLOGIN, message, authData);
         }
         throw new Exception("Expected: <new game name>");
@@ -62,7 +62,7 @@ public class PostloginClient extends Client {
             JoinGameRequest request = new JoinGameRequest(params[1], id, authData.authToken());
             server.joinGame(request);
             String message = String.format("Successfully joined game %d", id);
-            return new ClientResult(GAMEPLAY, message, authData);
+            return new ClientResult(GAMEPLAY, message, authData, params[0]);
         }
         throw new Exception("Expected: <game id> <team color>");
     }
