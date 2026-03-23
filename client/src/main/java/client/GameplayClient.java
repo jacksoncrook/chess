@@ -2,6 +2,7 @@ package client;
 
 import java.util.Arrays;
 
+import chess.ChessGame;
 import model.*;
 import ui.ClientResult;
 import ui.ClientResult.*;
@@ -11,10 +12,12 @@ import static ui.ClientResult.Type.*;
 public class GameplayClient extends Client {
     private final ServerFacade server;
     private final AuthData authData;
+    private final int currentGameID;
 
-    public GameplayClient(String serverUrl, AuthData authData) {
+    public GameplayClient(String serverUrl, AuthData authData, int gameID) {
         server = new ServerFacade(serverUrl);
         this.authData = authData;
+        this.currentGameID = gameID;
         type = GAMEPLAY;
     }
 
@@ -26,6 +29,7 @@ public class GameplayClient extends Client {
             return switch (cmd) {
                 case "l", "logout" -> logout();
                 case "h", "help" -> help();
+                case "r", "ref", "refresh", "redraw" -> redraw();
                 case "menu" -> menu();
                 default -> unknownCommand();
             };
@@ -43,6 +47,25 @@ public class GameplayClient extends Client {
     public ClientResult menu() {
         String message = "Returned to menu";
         return new ClientResult(POSTLOGIN, message, authData);
+    }
+
+    public ClientResult redraw() throws Exception {
+        GetGamesResult gameList = server.listGames(new GetGamesRequest(authData.authToken()));
+        var result = new StringBuilder();
+        GameData currentGame = null;
+        for (GameData gameData : gameList.games()) {
+            if (gameData.gameID() == currentGameID) {
+                currentGame = gameData;
+                break;
+            }
+        }
+
+        if (currentGame == null) {
+            throw new RequestException("Error: game not found");
+        }
+
+        result.append(currentGame);
+        return new ClientResult(POSTLOGIN, result.toString(), authData);
     }
 
     public ClientResult help() {
