@@ -32,6 +32,7 @@ public class GameplayClient extends Client {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "m", "move" -> makeMove(params);
                 case "l", "logout" -> logout();
                 case "h", "help" -> help();
                 case "r", "ref", "refresh", "redraw" -> redraw();
@@ -71,6 +72,11 @@ public class GameplayClient extends Client {
 
         result.append(currentGame);
         return new ClientResult(GAMEPLAY, result.toString(), authData, currentGameIDString);
+    }
+
+    public ClientResult makeMove(String... params) {
+        String message = "Movement has not been implemented: " + params[0];
+        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString);
     }
 
     public ClientResult help() {
