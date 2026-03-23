@@ -24,9 +24,10 @@ public class PostloginClient extends Client {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "list" -> listGames();
+                case "l", "list" -> listGames();
                 case "logout" -> logout();
-                case "join" -> joinGame(params);
+                case "j", "join" -> joinGame(params);
+                case "o", "obs", "observe" -> observeGame(params);
                 case "c", "create" -> createGame(params);
                 case "h", "help" -> help();
                 default -> unknownCommand();
@@ -42,8 +43,17 @@ public class PostloginClient extends Client {
         int i = 1;
         for (GameData gameData : gameList.games()) {
             result.append(i).append(". ").append(gameData.gameName())
-                    .append("\n\t").append("White: ").append(gameData.whiteUsername())
-                    .append("\n\t").append("Black: ").append(gameData.blackUsername()).append("\n\n");
+                    .append("\n\t").append("White: ");
+            if (gameData.whiteUsername() != null) {
+                result.append(gameData.whiteUsername());
+            }
+
+            result.append("\n\t").append("Black: ");
+            if (gameData.blackUsername() != null) {
+                result.append(gameData.blackUsername());
+            }
+            result.append("\n\n");
+            
             i++;
         }
 
@@ -64,16 +74,37 @@ public class PostloginClient extends Client {
 
     public ClientResult joinGame(String... params) throws Exception {
         gameList = server.listGames(new GetGamesRequest(authData.authToken()));
-        if (params.length == 2) {
+        if (params.length == 2 && isInt(params[0])) {
             int id = Integer.parseInt(params[0]);
             GameData gameData = gameList.get(id - 1);
             int joinGameID = gameData.gameID();
-            JoinGameRequest request = new JoinGameRequest(params[1], joinGameID, authData.authToken());
+
+            String teamColor = params[1];
+            if (teamColor.equals("w") || teamColor.equals("white")) {
+                teamColor = "WHITE";
+            } else if (teamColor.equals("b") || teamColor.equals("black")) {
+                teamColor = "BLACK";
+            }
+
+            JoinGameRequest request = new JoinGameRequest(teamColor, joinGameID, authData.authToken());
             server.joinGame(request);
             String message = String.format("Successfully joined game %d: %s", id, gameData.gameName());
             return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID));
         }
         throw new Exception("Expected: <game id> <black/white>");
+    }
+
+    public ClientResult observeGame(String... params) throws Exception {
+        gameList = server.listGames(new GetGamesRequest(authData.authToken()));
+        if (params.length == 1 && isInt(params[0])) {
+            int id = Integer.parseInt(params[0]);
+            GameData gameData = gameList.get(id - 1);
+            int joinGameID = gameData.gameID();
+
+            String message = String.format("Now observing game %d: %s", id, gameData.gameName());
+            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID));
+        }
+        throw new Exception("Expected: <game id>");
     }
 
 
@@ -93,5 +124,14 @@ public class PostloginClient extends Client {
                 - logout
                 """;
         return new ClientResult(POSTLOGIN, helpMessage, authData);
+    }
+
+    private boolean isInt(String string) {
+        try {
+            Integer.parseInt(string);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
     }
 }
