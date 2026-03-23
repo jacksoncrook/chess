@@ -7,6 +7,7 @@ import ui.ClientResult;
 import ui.ClientResult.*;
 
 import static ui.ClientResult.Type.*;
+import static ui.EscapeSequences.*;
 
 public class GameplayClient extends Client {
     private final ServerFacade server;
@@ -59,8 +60,9 @@ public class GameplayClient extends Client {
 
     public ClientResult redraw() throws Exception {
         GetGamesResult gameList = server.listGames(new GetGamesRequest(authData.authToken()));
-        var result = new StringBuilder();
         GameData currentGame = null;
+
+
         for (GameData gameData : gameList.games()) {
             if (gameData.gameID() == currentGameID) {
                 currentGame = gameData;
@@ -72,8 +74,8 @@ public class GameplayClient extends Client {
             throw new RequestException("Error: game not found");
         }
 
-        result.append(currentGame);
-        return new ClientResult(GAMEPLAY, result.toString(), authData, currentGameIDString, currentTeam);
+        var result = printBoard(currentGame);
+        return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
     }
 
     public ClientResult makeMove(String... params) {
@@ -88,5 +90,10 @@ public class GameplayClient extends Client {
                 - logout
                 - menu""";
         return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
+    }
+
+    public String printBoard(GameData gameData) {
+        return ERASE_SCREEN + SET_BG_COLOR_DARK_GREY + SET_TEXT_BOLD + gameData.gameName() + ": " + gameData.whiteUsername() + ", " + gameData.blackUsername() + "\n"
+                + gameData.game().getBoard();
     }
 }
