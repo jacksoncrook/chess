@@ -37,11 +37,17 @@ public class PostloginClient extends Client {
     }
 
     public ClientResult listGames() throws Exception {
-        GetGamesResult gameList = server.listGames(new GetGamesRequest(authData.authToken()));
+        gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         var result = new StringBuilder();
+        int i = 1;
         for (GameData gameData : gameList.games()) {
-            result.append(gameData.gameID()).append(": ").append(gameData.gameName()).append('\n');
+            result.append(i).append(". ").append(gameData.gameName())
+                    .append("\n\t").append("White: ").append(gameData.whiteUsername())
+                    .append("\n\t").append("Black: ").append(gameData.blackUsername()).append("\n\n");
+            i++;
         }
+
+        result.delete(result.length() - 2, result.length());
         return new ClientResult(POSTLOGIN, result.toString(), authData);
     }
 
@@ -57,14 +63,17 @@ public class PostloginClient extends Client {
     }
 
     public ClientResult joinGame(String... params) throws Exception {
+        gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         if (params.length == 2) {
             int id = Integer.parseInt(params[0]);
-            JoinGameRequest request = new JoinGameRequest(params[1], id, authData.authToken());
+            GameData gameData = gameList.get(id - 1);
+            int joinGameID = gameData.gameID();
+            JoinGameRequest request = new JoinGameRequest(params[1], joinGameID, authData.authToken());
             server.joinGame(request);
-            String message = String.format("Successfully joined game %d", id);
-            return new ClientResult(GAMEPLAY, message, authData, params[0]);
+            String message = String.format("Successfully joined game %d: %s", id, gameData.gameName());
+            return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID));
         }
-        throw new Exception("Expected: <game id> <team color>");
+        throw new Exception("Expected: <game id> <black/white>");
     }
 
 

@@ -1,10 +1,12 @@
 package client;
 
+import model.GetGamesResult;
 import ui.ClientResult;
 import ui.ClientResult.Type;
 
 public abstract class Client {
     protected Type type;
+    protected static GetGamesResult gameList;
 
     public Type getType() {
         return type;
