@@ -35,7 +35,7 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
-    public void deletePet(int id) throws Exception {
+    public void deletePet() throws Exception {
         var request = buildRequest("DELETE", "", null);
         var response = sendRequest(request);
         handleResponse(response, null);

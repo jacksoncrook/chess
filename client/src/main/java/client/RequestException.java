@@ -7,6 +7,7 @@ public class RequestException extends Exception {
         super(message);
     }
     public RequestException(int errorCode, String message) {
+        super(message);
         this.errorCode = errorCode;
     }
 
