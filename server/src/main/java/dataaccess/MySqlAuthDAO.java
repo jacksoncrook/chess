@@ -39,7 +39,7 @@ public class MySqlAuthDAO implements AuthDAO {
         String authTokenOut = null;
         String username = null;
 
-        if (!authToken.matches("[a-fA-F0-9-]+")) {
+        if (authToken == null || !authToken.matches("[a-fA-F0-9-]+")) {
             throw new UnauthorizedException("Error: invalid authToken");
         }
 
