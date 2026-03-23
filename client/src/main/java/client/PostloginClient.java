@@ -60,7 +60,8 @@ public class PostloginClient extends Client {
 
 
     public ClientResult logout() throws Exception {
-        String message = String.format("%s left the shop", "you");
+        server.logout(new LogoutRequest(authData.authToken()));
+        String message = String.format("%s successfully logged out", "you");
         return new ClientResult(PRELOGIN, message, null);
     }
 
