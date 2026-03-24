@@ -111,7 +111,7 @@ public class PostloginClient extends Client {
             GameData gameData = gameList.get(id - 1);
             int joinGameID = gameData.gameID();
 
-            String message = String.format("Now observing game %d: %s", id, gameData.gameName());
+            String message = String.format("Now observing game %d: %s\n", id, gameData.gameName());
             return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), "WHITE");
         }
         throw new Exception("Expected: <game id>");
