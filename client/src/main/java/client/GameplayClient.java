@@ -146,25 +146,7 @@ public class GameplayClient extends Client {
                         continue;
                     }
 
-                    if (piece.getTeamColor() == WHITE) {
-                        switch (piece.getPieceType()) {
-                            case PAWN -> result.append(WHITE_PAWN);
-                            case KNIGHT -> result.append(WHITE_KNIGHT);
-                            case BISHOP -> result.append(WHITE_BISHOP);
-                            case ROOK -> result.append(WHITE_ROOK);
-                            case KING -> result.append(WHITE_KING);
-                            case QUEEN -> result.append(WHITE_QUEEN);
-                        }
-                    } else if (piece.getTeamColor() == BLACK) {
-                        switch (piece.getPieceType()) {
-                            case PAWN -> result.append(BLACK_PAWN);
-                            case KNIGHT -> result.append(BLACK_KNIGHT);
-                            case BISHOP -> result.append(BLACK_BISHOP);
-                            case ROOK -> result.append(BLACK_ROOK);
-                            case KING -> result.append(BLACK_KING);
-                            case QUEEN -> result.append(BLACK_QUEEN);
-                        }
-                    }
+                    pieceHandler(result, piece);
                 }
             }
 
@@ -173,5 +155,27 @@ public class GameplayClient extends Client {
 
         result.deleteCharAt(result.length() - 1);
         return result.toString();
+    }
+
+    private void pieceHandler(StringBuilder result, ChessPiece piece) {
+        if (piece.getTeamColor() == WHITE) {
+            switch (piece.getPieceType()) {
+                case PAWN -> result.append(WHITE_PAWN);
+                case KNIGHT -> result.append(WHITE_KNIGHT);
+                case BISHOP -> result.append(WHITE_BISHOP);
+                case ROOK -> result.append(WHITE_ROOK);
+                case KING -> result.append(WHITE_KING);
+                case QUEEN -> result.append(WHITE_QUEEN);
+            }
+        } else if (piece.getTeamColor() == BLACK) {
+            switch (piece.getPieceType()) {
+                case PAWN -> result.append(BLACK_PAWN);
+                case KNIGHT -> result.append(BLACK_KNIGHT);
+                case BISHOP -> result.append(BLACK_BISHOP);
+                case ROOK -> result.append(BLACK_ROOK);
+                case KING -> result.append(BLACK_KING);
+                case QUEEN -> result.append(BLACK_QUEEN);
+            }
+        }
     }
 }
