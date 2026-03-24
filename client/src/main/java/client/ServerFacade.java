@@ -100,7 +100,7 @@ public class ServerFacade {
                 throw new RequestException(new Gson().fromJson(body, Message.class).message());
             }
 
-            throw new RequestException(status, "other failure: " + status);
+            throw new RequestException("other failure: " + status);
         }
 
         if (responseClass != null) {
