@@ -57,8 +57,11 @@ public class PostloginClient extends Client {
             i++;
         }
 
-        result.delete(result.length() - 2, result.length());
-        return new ClientResult(POSTLOGIN, result.toString(), authData);
+        if (result.length() >= 2) {
+            result.delete(result.length() - 2, result.length());
+            return new ClientResult(POSTLOGIN, result.toString(), authData);
+        }
+        return new ClientResult(POSTLOGIN, "No games found", authData);
     }
 
     public ClientResult createGame(String... params) throws Exception {
@@ -118,9 +121,15 @@ public class PostloginClient extends Client {
     }
 
 
-    public ClientResult logout() throws Exception {
-        server.logout(new LogoutRequest(authData.authToken()));
-        String message = String.format("%s successfully logged out", authData.username());
+    public ClientResult logout() {
+        String message;
+        try {
+            server.logout(new LogoutRequest(authData.authToken()));
+            message = String.format("%s successfully logged out", authData.username());
+        } catch (Exception e) {
+            message = e.getMessage();
+        }
+
         return new ClientResult(PRELOGIN, message, null);
     }
 

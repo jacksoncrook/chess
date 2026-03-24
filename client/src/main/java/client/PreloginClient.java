@@ -25,6 +25,7 @@ public class PreloginClient extends Client {
                 case "l", "login" -> login(params);
                 case "r", "register" -> register(params);
                 case "q", "quit", "exit" -> new ClientResult(null, "quit", null);
+                case "hiddencommandclear" -> clear();
                 case "h", "help" -> help();
                 default -> unknownCommand();
             };
@@ -54,6 +55,10 @@ public class PreloginClient extends Client {
         throw new Exception("Expected: <username> <password> <email>");
     }
 
+    public ClientResult clear() throws Exception {
+        server.clear();
+        return new ClientResult(PRELOGIN, "Successfully emptied database", null);
+    }
 
     public ClientResult help() {
         String helpMessage = """

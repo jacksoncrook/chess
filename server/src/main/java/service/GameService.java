@@ -51,6 +51,10 @@ public class GameService {
 
         int gameID = gameIDCounter++;
 
+        while (gameDAO.getGame(gameID) != null) {
+            gameID = gameIDCounter++;
+        }
+
         GameData gameData = new GameData(gameID, null, null, createGameRequest.gameName(), new ChessGame());
         gameDAO.createGame(gameData);
 
