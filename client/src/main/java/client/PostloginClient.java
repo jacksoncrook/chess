@@ -128,9 +128,9 @@ public class PostloginClient extends Client {
         String helpMessage = """
                 - help
                 - list
-                - create
-                - join
-                - observe
+                - create <name>
+                - join <game id> <white/black>
+                - observe <game id>
                 - logout""";
         return new ClientResult(POSTLOGIN, helpMessage, authData);
     }

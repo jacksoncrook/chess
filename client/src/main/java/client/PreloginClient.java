@@ -57,8 +57,8 @@ public class PreloginClient extends Client {
 
     public ClientResult help() {
         String helpMessage = """
-            - login
-            - register
+            - login <username> <password>
+            - register <username> <password> <email>
             - help
             - quit""";
         return new ClientResult(PRELOGIN, helpMessage, null);

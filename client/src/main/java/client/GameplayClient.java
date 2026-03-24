@@ -96,6 +96,7 @@ public class GameplayClient extends Client {
         String helpMessage = """
                 - help
                 - redraw
+                - move <start position> <end position>
                 - logout
                 - menu""";
         return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
