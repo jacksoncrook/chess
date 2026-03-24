@@ -92,13 +92,13 @@ public class PostloginClient extends Client {
             }
 
             if (rejoining) {
-                String message = String.format("Successfully rejoined game %d: %s", id, gameData.gameName());
+                String message = String.format("Successfully rejoined game %d: %s\n", id, gameData.gameName());
                 return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), teamColor);
             }
 
             JoinGameRequest request = new JoinGameRequest(teamColor, joinGameID, authData.authToken());
             server.joinGame(request);
-            String message = String.format("Successfully joined game %d: %s", id, gameData.gameName());
+            String message = String.format("Successfully joined game %d: %s\n", id, gameData.gameName());
             return new ClientResult(GAMEPLAY, message, authData, String.valueOf(joinGameID), teamColor);
         }
         throw new Exception("Expected: <game id> <black/white>");

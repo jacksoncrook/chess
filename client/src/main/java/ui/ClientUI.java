@@ -47,7 +47,7 @@ public class ClientUI {
                     switch (result.type()) {
                         case PRELOGIN -> currentClient = new PreloginClient(serverUrl);
                         case POSTLOGIN -> currentClient = new PostloginClient(serverUrl, authData);
-                        case GAMEPLAY -> currentClient = new GameplayClient(serverUrl, authData, result.gameID(), result.teamColor());
+                        case GAMEPLAY -> initializeGameplay(result);
                     }
                 }
                 currentClientType = result.type();
@@ -58,6 +58,17 @@ public class ClientUI {
             }
         }
         System.out.println();
+    }
+
+    private void initializeGameplay(ClientResult result) {
+        currentClient = new GameplayClient(serverUrl, result.authData(), result.gameID(), result.teamColor());
+
+        try {
+            result = currentClient.eval("redraw");
+            System.out.print(result.message());
+        } catch (Throwable except) {
+            System.out.print(except.getMessage());
+        }
     }
 
     private void printPrompt() {
