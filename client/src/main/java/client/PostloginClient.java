@@ -75,7 +75,6 @@ public class PostloginClient extends Client {
     }
 
     public ClientResult joinGame(String... params) throws Exception {
-        gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         if (params.length == 2 && isInt(params[0])) {
             int id = Integer.parseInt(params[0]);
             GameData gameData = gameList.get(id - 1);
@@ -107,7 +106,6 @@ public class PostloginClient extends Client {
     }
 
     public ClientResult observeGame(String... params) throws Exception {
-        gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         if (params.length == 1 && isInt(params[0])) {
             int id = Integer.parseInt(params[0]);
             GameData gameData = gameList.get(id - 1);
