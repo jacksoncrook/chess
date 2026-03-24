@@ -67,9 +67,8 @@ public class PostloginClient extends Client {
     public ClientResult createGame(String... params) throws Exception {
         if (params.length == 1) {
             CreateGameRequest request = new CreateGameRequest(authData.authToken(), params[0]);
-            CreateGameResult createGameResult = server.createGame(request);
-            String gameID = String.valueOf(createGameResult.gameID());
-            String message = String.format("New game id is %s", gameID);
+            server.createGame(request);
+            String message = "Successfully created new game: " + params[0];
             return new ClientResult(POSTLOGIN, message, authData);
         }
         throw new Exception("Expected: <new game name>");
