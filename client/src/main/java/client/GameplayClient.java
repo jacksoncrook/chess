@@ -42,7 +42,8 @@ public class GameplayClient extends Client {
                 case "m", "move" -> makeMove(params);
                 case "logout" -> logout();
                 case "h", "help" -> help();
-                case "r", "ref", "refresh", "redraw" -> redraw();
+                case "r", "ref", "refresh", "redraw" -> redraw(null);
+                case "lm", "lms", "legalms", "legalmoves", "lmoves" -> legalMoves(params);
                 case "menu" -> menu();
                 default -> unknownCommand();
             };
@@ -62,7 +63,12 @@ public class GameplayClient extends Client {
         return new ClientResult(POSTLOGIN, message, authData);
     }
 
-    public ClientResult redraw() throws Exception {
+    public ClientResult legalMoves(String... params) throws Exception {
+        ChessPosition position = positionHandler(params);
+        return redraw(position);
+    }
+
+    public ClientResult redraw(ChessPosition position) throws Exception {
         GetGamesResult gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         GameData currentGame = null;
 
@@ -78,7 +84,7 @@ public class GameplayClient extends Client {
             throw new RequestException("Error: game not found");
         }
 
-        var result = outputGame(currentGame);
+        var result = outputGame(currentGame, position);
         return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
     }
 
@@ -96,22 +102,24 @@ public class GameplayClient extends Client {
         String helpMessage = """
                 - help
                 - redraw
+                - legalmoves <position>
+                    - lmoves <position>
                 - move <start position> <end position>
                 - logout
                 - menu""";
         return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
     }
 
-    public String outputGame(GameData gameData) {
+    public String outputGame(GameData gameData, ChessPosition position) {
         return ERASE_SCREEN + SET_TEXT_BOLD +
                 gameData.gameName() + ": " +
                 gameData.whiteUsername() + ", " +
                 gameData.blackUsername() + '\n' +
-                printBoard(gameData.game()) +
+                printBoard(gameData.game(), position) +
                 RESET_TEXT_BOLD_FAINT;
     }
 
-    public String printBoard(ChessGame game) {
+    public String printBoard(ChessGame game, ChessPosition position) {
         int direction;
         int startingPoint;
         var result = new StringBuilder();
@@ -133,9 +141,12 @@ public class GameplayClient extends Client {
                 } else if (col == 0 || col == 9) {
                     result.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row).append(" ");
                 } else {
-                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+                    ChessPosition currentPosition = new ChessPosition(row, col);
+                    ChessPiece piece = game.getBoard().getPiece(currentPosition);
 
-                    if ((row + col) % 2 == 1) {
+                    if (position != null && position.getRow() == row && position.getColumn() == col) {
+                        result.append(SET_BG_COLOR_YELLOW);
+                    } else if ((row + col) % 2 == 1) {
                         result.append(SET_BG_COLOR_WHITE);
                     } else {
                         result.append(SET_BG_COLOR_BROWN);
@@ -177,5 +188,21 @@ public class GameplayClient extends Client {
                 case QUEEN -> result.append(BLACK_QUEEN);
             }
         }
+    }
+
+    private ChessPosition positionHandler(String... params) throws Exception {
+        if (params.length != 1) {
+            throw new RequestException("Expected: <position>");
+        }
+
+        String position = params[0];
+        position = position.toLowerCase();
+        if (!position.matches("[a-h][1-8]")) {
+            throw new RequestException("Invalid position; Expected: <position>");
+        }
+
+        int col = position.charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(position.charAt(1));
+        return new ChessPosition(row, col);
     }
 }
