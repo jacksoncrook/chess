@@ -123,6 +123,7 @@ public class GameplayClient extends Client {
         int direction;
         int startingPoint;
         var result = new StringBuilder();
+        boolean drawMovement = position != null;
 
         if ("BLACK".equals(currentTeam)) {
             direction = -1;
@@ -144,12 +145,18 @@ public class GameplayClient extends Client {
                     ChessPosition currentPosition = new ChessPosition(row, col);
                     ChessPiece piece = game.getBoard().getPiece(currentPosition);
 
-                    if (position != null && position.getRow() == row && position.getColumn() == col) {
-                        result.append(SET_BG_COLOR_YELLOW);
-                    } else if ((row + col) % 2 == 1) {
-                        result.append(SET_BG_COLOR_WHITE);
+                    if ((row + col) % 2 == 1) {
+                        if (drawMovement && position.equals(currentPosition)) {
+                            result.append(SET_BG_COLOR_YELLOW);
+                        } else {
+                            result.append(SET_BG_COLOR_WHITE);
+                        }
                     } else {
-                        result.append(SET_BG_COLOR_BROWN);
+                        if (drawMovement && position.equals(currentPosition)) {
+                            result.append(SET_BG_COLOR_ORANGE);
+                        } else {
+                            result.append(SET_BG_COLOR_BROWN);
+                        }
                     }
 
                     if (piece == null) {
