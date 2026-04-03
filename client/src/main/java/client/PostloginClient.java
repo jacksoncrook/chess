@@ -16,6 +16,10 @@ public class PostloginClient extends Client {
         server = new ServerFacade(serverUrl);
         this.authData = authData;
         type = POSTLOGIN;
+        try {
+            gameList = server.listGames(new GetGamesRequest(authData.authToken()));
+        } catch (Exception ignore) {
+        }
     }
 
     public ClientResult eval(String input) {
