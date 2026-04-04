@@ -1,6 +1,8 @@
 package client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import chess.ChessGame;
@@ -119,11 +121,26 @@ public class GameplayClient extends Client {
                 RESET_TEXT_BOLD_FAINT;
     }
 
+    private enum SquareType {
+        LIGHT,
+        DARK,
+        LIGHT_SELECTED,
+        DARK_SELECTED,
+        LIGHT_HIGHLIGHTED,
+        DARK_HIGHLIGHTED,
+    }
+
+
     public String printBoard(ChessGame game, ChessPosition position) {
         int direction;
         int startingPoint;
         var result = new StringBuilder();
         boolean drawMovement = position != null;
+        Collection<ChessPosition> validMoveLocations = new ArrayList<>();
+
+        if (drawMovement) {
+            validMoveLocations = game.validMoveLocations(position);
+        }
 
         if ("BLACK".equals(currentTeam)) {
             direction = -1;
@@ -137,39 +154,53 @@ public class GameplayClient extends Client {
 
         for (int row = 9 - startingPoint; 0 <= row && row <= 9; row -= direction) {
             for (int col = startingPoint; 0 <= col && col <= 9; col += direction) {
+
                 if (row == 0 || row == 9) {
                     result.append(SET_BG_COLOR_LIGHT_GREY).append(SET_TEXT_COLOR_BLACK).append(columnLabels.get(col));
+                    continue;
+
                 } else if (col == 0 || col == 9) {
                     result.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row).append(" ");
-                } else {
-                    ChessPosition currentPosition = new ChessPosition(row, col);
-                    ChessPiece piece = game.getBoard().getPiece(currentPosition);
-
-                    if ((row + col) % 2 == 1) {
-                        if (drawMovement && position.equals(currentPosition)) {
-                            result.append(SET_BG_COLOR_YELLOW);
-                        } else {
-                            result.append(SET_BG_COLOR_WHITE);
-                        }
-                    } else {
-                        if (drawMovement && position.equals(currentPosition)) {
-                            result.append(SET_BG_COLOR_ORANGE);
-                        } else {
-                            result.append(SET_BG_COLOR_BROWN);
-                        }
-                    }
-
-                    if (piece == null) {
-                        result.append(EMPTY);
-                        continue;
-                    }
-
-                    pieceHandler(result, piece);
+                    continue;
                 }
+
+                ChessPosition currentPosition = new ChessPosition(row, col);
+                ChessPiece piece = game.getBoard().getPiece(currentPosition);
+                SquareType square;
+
+                if ((row + col) % 2 == 1) {
+                    square = SquareType.LIGHT;
+                } else {
+                    square = SquareType.DARK;
+                }
+
+                if (validMoveLocations.contains(currentPosition)) { // Set square to highlighted if it's a valid move location
+                    square = SquareType.values()[square.ordinal() + 4];
+
+                } else if (currentPosition.equals(position)) { // Set square to selected if it's the queried position
+                    square = SquareType.values()[square.ordinal() + 2];
+                }
+
+                switch (square) {
+                    case LIGHT -> result.append(SET_BG_COLOR_WHITE);
+                    case DARK -> result.append(SET_BG_COLOR_BROWN);
+                    case LIGHT_SELECTED -> result.append(SET_BG_COLOR_YELLOW);
+                    case DARK_SELECTED -> result.append(SET_BG_COLOR_ORANGE);
+                    case LIGHT_HIGHLIGHTED -> result.append(SET_BG_COLOR_GREEN);
+                    case DARK_HIGHLIGHTED -> result.append(SET_BG_COLOR_DARK_GREEN);
+                }
+
+                if (piece == null) {
+                    result.append(EMPTY);
+                    continue;
+                }
+
+                pieceHandler(result, piece);
             }
 
             result.append(RESET_BG_COLOR).append('\n');
         }
+
 
         result.deleteCharAt(result.length() - 1);
         return result.toString();
