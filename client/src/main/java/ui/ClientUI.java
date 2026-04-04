@@ -20,7 +20,7 @@ public class ClientUI {
     public ClientUI(String serverUrl) {
         this.serverUrl = "http://" + serverUrl;
         this.serverUri = "ws://" + serverUrl + "/ws";
-        currentClient = new PreloginClient(serverUrl);
+        currentClient = new PreloginClient(this.serverUrl);
         currentClientType = currentClient.getType();
     }
 

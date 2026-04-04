@@ -2,10 +2,7 @@ package client;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
+import jakarta.websocket.*;
 import model.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -19,7 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 import static websocket.commands.UserGameCommand.CommandType.*;
 
-public class ServerFacade {
+public class ServerFacade extends Endpoint {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
     private final Gson gson = new Gson();
@@ -32,6 +29,11 @@ public class ServerFacade {
     public ServerFacade(String url, String uri) throws URISyntaxException {
         serverUrl = url;
         websocketUri = new URI(uri);
+    }
+
+    //Endpoint requires this method, but you don't have to do anything
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
     public AuthData register(UserData registerRequest) throws Exception {

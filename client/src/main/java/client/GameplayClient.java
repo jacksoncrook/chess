@@ -69,15 +69,23 @@ public class GameplayClient extends Client {
         }
     }
 
-    public ClientResult logout() throws Exception {
-        server.logout(new LogoutRequest(authData.authToken()));
+    public ClientResult logout() {
         String message = "Successfully logged out";
+        try {
+            server.logout(new LogoutRequest(authData.authToken()));
+        } catch (Exception e) {
+            message = "Server error: returning to login menu";
+        }
         return new ClientResult(PRELOGIN, message, null);
     }
 
-    public ClientResult menu() throws Exception {
+    public ClientResult menu() {
         String message = ERASE_SCREEN + "Returned to menu";
-        server.websocketLeave(session, authData.authToken(), currentGameID);
+        try {
+            server.websocketLeave(session, authData.authToken(), currentGameID);
+        } catch (Exception e) {
+            message = "Server error: returning to menu";
+        }
         return new ClientResult(POSTLOGIN, message, authData);
     }
 
