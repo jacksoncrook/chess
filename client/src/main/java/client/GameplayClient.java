@@ -101,14 +101,25 @@ public class GameplayClient extends Client {
     }
 
     public ClientResult help() {
-        String helpMessage = """
-                - help
-                - redraw
-                - legalmoves <position>
+        String helpMessage;
+        if (currentTeam == null) {
+            helpMessage = """
+                - help                                      Display this menu
+                - redraw                                    Redraw the board locally
+                - legalmoves <position>                     Display legal moves
                     - lmoves <position>
-                - move <start position> <end position>
-                - logout
-                - menu""";
+                - logout                                    Return to the login menu
+                - menu                                      Return to the game selection menu""";
+        } else {
+            helpMessage = """
+                - help                                      Display this menu
+                - redraw                                    Redraw the board locally
+                - legalmoves <position>                     Display legal moves
+                    - lmoves <position>
+                - move <start position> <end position>      Make a move
+                - logout                                    Return to the login menu
+                - menu                                      Return to the game selection menu""";
+        }
         return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
     }
 
