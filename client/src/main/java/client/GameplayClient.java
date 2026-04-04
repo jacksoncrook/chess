@@ -206,6 +206,7 @@ public class GameplayClient extends Client {
         return result.toString();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void pieceHandler(StringBuilder result, ChessPiece piece) {
         if (piece.getTeamColor() == WHITE) {
             switch (piece.getPieceType()) {
