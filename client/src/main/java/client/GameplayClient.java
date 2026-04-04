@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
@@ -79,7 +80,17 @@ public class GameplayClient extends Client {
     }
 
     public ClientResult legalMoves(String... params) throws Exception {
-        ChessPosition position = positionHandler(params);
+        if (params.length != 1) {
+            throw new RequestException("Expected: <position>");
+        }
+
+        String positionString = params[0];
+        positionString = positionString.toLowerCase();
+        if (!positionString.matches("[a-h][1-8]")) {
+            throw new RequestException("Invalid position; Expected: <position>");
+        }
+
+        ChessPosition position = positionHandler(positionString);
         return redraw(position);
     }
 
@@ -103,7 +114,7 @@ public class GameplayClient extends Client {
         return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
     }
 
-    public ClientResult makeMove(String... params) {
+    public ClientResult makeMove(String... params) throws Exception {
         String message = "";
 
         if (currentTeam == null) {
@@ -112,6 +123,10 @@ public class GameplayClient extends Client {
         }
 
         if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
+            ChessMove move = new ChessMove(positionHandler(params[0]), positionHandler(params[1]), null);
+
+            server.makeMove(session, move);
+
             message += params[0] + " " + params[1];
         } else {
             message += "Expected: <start position> <end position>";
@@ -259,17 +274,7 @@ public class GameplayClient extends Client {
         }
     }
 
-    private ChessPosition positionHandler(String... params) throws Exception {
-        if (params.length != 1) {
-            throw new RequestException("Expected: <position>");
-        }
-
-        String position = params[0];
-        position = position.toLowerCase();
-        if (!position.matches("[a-h][1-8]")) {
-            throw new RequestException("Invalid position; Expected: <position>");
-        }
-
+    private ChessPosition positionHandler(String position) {
         int col = position.charAt(0) - 'a' + 1;
         int row = Character.getNumericValue(position.charAt(1));
         return new ChessPosition(row, col);

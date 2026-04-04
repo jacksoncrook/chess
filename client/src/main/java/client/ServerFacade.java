@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.DeploymentException;
@@ -74,6 +75,10 @@ public class ServerFacade {
     public Session createSession() throws DeploymentException, IOException {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         return container.connectToServer(this, websocketUri);
+    }
+
+    public void makeMove(Session session, ChessMove move) throws IOException {
+        session.getBasicRemote().sendText("");
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
