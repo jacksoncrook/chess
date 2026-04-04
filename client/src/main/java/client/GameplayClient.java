@@ -91,8 +91,8 @@ public class GameplayClient extends Client {
     }
 
     public ClientResult makeMove(String... params) {
-        String message = "Movement has not been implemented \n";
-        if (params.length == 2) {
+        String message = "";
+        if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
             message += params[0] + " " + params[1];
         } else {
             message += "Expected: <start position> <end position>";
