@@ -15,9 +15,11 @@ public class ClientUI {
     private Client currentClient;
     private ClientResult.Type currentClientType;
     private final String serverUrl;
+    private final String serverUri;
 
     public ClientUI(String serverUrl) {
-        this.serverUrl = serverUrl;
+        this.serverUrl = "http://" + serverUrl;
+        this.serverUri = "ws://" + serverUrl + "/ws";
         currentClient = new PreloginClient(serverUrl);
         currentClientType = currentClient.getType();
     }
@@ -61,11 +63,12 @@ public class ClientUI {
     }
 
     private void initializeGameplay(ClientResult result) {
-        currentClient = new GameplayClient(serverUrl, result.authData(), result.gameID(), result.teamColor());
-
         try {
+            currentClient = new GameplayClient(serverUrl, serverUri, result.authData(), result.gameID(), result.teamColor());
             result = currentClient.eval("redraw");
+
             System.out.print(result.message());
+
         } catch (Throwable except) {
             System.out.print(except.getMessage());
         }

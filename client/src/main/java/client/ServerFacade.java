@@ -1,8 +1,14 @@
 package client;
 
 import com.google.gson.Gson;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 import model.*;
+import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
@@ -12,9 +18,15 @@ import java.net.http.HttpResponse.BodyHandlers;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private URI websocketUri;
 
     public ServerFacade(String url) {
         serverUrl = url;
+    }
+
+    public ServerFacade(String url, String uri) throws URISyntaxException {
+        serverUrl = url;
+        websocketUri = new URI(uri);
     }
 
     public AuthData register(UserData registerRequest) throws Exception {
@@ -57,6 +69,11 @@ public class ServerFacade {
         var request = buildRequest("DELETE", "/db", null, null);
         var response = sendRequest(request);
         handleResponse(response, GetGamesResult.class);
+    }
+
+    public Session createSession() throws DeploymentException, IOException {
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        return container.connectToServer(this, websocketUri);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {

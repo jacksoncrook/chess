@@ -11,6 +11,9 @@ import chess.ChessPosition;
 import model.*;
 import ui.ClientResult;
 
+import jakarta.websocket.Session;
+import jakarta.websocket.MessageHandler;
+
 import static chess.ChessGame.TeamColor.*;
 import static ui.ClientResult.Type.*;
 import static ui.EscapeSequences.*;
@@ -21,14 +24,24 @@ public class GameplayClient extends Client {
     private final int currentGameID;
     private final String currentGameIDString;
     private final String currentTeam;
+    private final Session session;
 
-    public GameplayClient(String serverUrl, AuthData authData, String gameID, String teamColor) {
-        server = new ServerFacade(serverUrl);
+    public GameplayClient(String serverUrl, String serverUri, AuthData authData, String gameID, String teamColor) throws Exception {
+        server = new ServerFacade(serverUrl, serverUri);
         this.authData = authData;
         this.currentGameIDString = gameID;
         this.currentGameID = Integer.parseInt(gameID);
         this.currentTeam = teamColor;
         type = GAMEPLAY;
+
+        session = server.createSession();
+
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            public void onMessage(String message) {
+                System.out.println(message);
+                System.out.println("\nEnter another message you want to echo:");
+            }
+        });
     }
 
     public ClientResult eval(String input) {
