@@ -96,6 +96,39 @@ public class GameService {
         }
     }
 
+    public void resignGame(String authToken, int gameID, String color) throws DataAccessException {
+        if (authToken == null || color == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        if (gameID == 0) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        GameData oldGameData = gameDAO.getGame(gameID);
+        String playerUsername;
+
+        if (color.equals("WHITE")) {
+            playerUsername = oldGameData.whiteUsername();
+        } else if (color.equals("BLACK")) {
+            playerUsername = oldGameData.blackUsername();
+        } else {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        AuthData authData = authDAO.getAuth(authToken);
+
+        if (authData == null || authData.username().equals(playerUsername)) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        ChessGame newGame = oldGameData.game();
+        newGame.setTeamTurn(null);
+        GameData newGameData = oldGameData.updateGameData(newGame);
+
+        gameDAO.updateGame(oldGameData, newGameData);
+    }
+
     public void clear() throws DataAccessException {
         userDAO.clear();
         authDAO.clear();
