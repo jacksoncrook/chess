@@ -36,6 +36,7 @@ public class GameplayClient extends Client {
         type = GAMEPLAY;
 
         session = server.createSession();
+        server.websocketConnect(session, this.authData.authToken(), currentGameID);
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
@@ -74,8 +75,9 @@ public class GameplayClient extends Client {
         return new ClientResult(PRELOGIN, message, null);
     }
 
-    public ClientResult menu() {
-        String message = "Returned to menu";
+    public ClientResult menu() throws Exception {
+        String message = ERASE_SCREEN + "Returned to menu";
+        server.websocketLeave(session, authData.authToken(), currentGameID);
         return new ClientResult(POSTLOGIN, message, authData);
     }
 

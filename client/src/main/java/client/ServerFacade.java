@@ -7,6 +7,7 @@ import jakarta.websocket.DeploymentException;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import model.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -16,9 +17,12 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
+import static websocket.commands.UserGameCommand.CommandType.*;
+
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private final Gson gson = new Gson();
     private URI websocketUri;
 
     public ServerFacade(String url) {
@@ -58,6 +62,17 @@ public class ServerFacade {
         var request = buildRequest("PUT", "/game", joinGameRequest, joinGameRequest.authToken());
         var response = sendRequest(request);
         handleResponse(response, null);
+    }
+
+    public void websocketConnect(Session session, String authToken, int gameID) throws Exception {
+        UserGameCommand command = new UserGameCommand(CONNECT, authToken, gameID);
+        session.getBasicRemote().sendText(gson.toJson(command));
+    }
+
+    public void websocketLeave(Session session, String authToken, int gameID) throws Exception {
+        UserGameCommand command = new UserGameCommand(LEAVE, authToken, gameID);
+        session.getBasicRemote().sendText(gson.toJson(command));
+        session.close();
     }
 
     public GetGamesResult listGames(GetGamesRequest getGamesRequest) throws Exception {
