@@ -1,17 +1,22 @@
 package server;
 
+import dataaccess.DataAccessException;
 import handler.*;
 import io.javalin.*;
 
 public class Server {
 
     private final Javalin javalin;
-    private final WebSocketHandler webSocketHandler;
+    private WebSocketHandler webSocketHandler;
 
     public Server() {
 
-        webSocketHandler = new WebSocketHandler();
         String databaseType = "MySQL";
+        try {
+            webSocketHandler = new WebSocketHandler(databaseType);
+        } catch (DataAccessException e) {
+            System.out.println("Error in webSocketHandler creation: " + e.getMessage());
+        }
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", new RegisterHandler(databaseType))
