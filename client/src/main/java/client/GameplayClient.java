@@ -58,6 +58,7 @@ public class GameplayClient extends Client {
             return switch (cmd) {
                 case "m", "move" -> makeMove(params);
                 case "logout" -> logout();
+                case "resign" -> resign();
                 case "h", "help" -> help();
                 case "r", "ref", "refresh", "redraw" -> redraw(null);
                 case "lm", "lms", "legalms", "legalmoves", "lmoves" -> legalMoves(params);
@@ -77,6 +78,22 @@ public class GameplayClient extends Client {
             message = "Server error: returning to login menu";
         }
         return new ClientResult(PRELOGIN, message, null);
+    }
+
+    public ClientResult resign() {
+        String message = "Game resigned";
+
+        if (currentTeam == null) {
+            message = "Observers cannot resign";
+            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
+        }
+
+        try {
+            server.resign(session, authData.authToken(), currentGameID, currentTeam);
+        } catch (Exception e) {
+            message = "Internal server error";
+        }
+        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, currentTeam);
     }
 
     public ClientResult menu() {
@@ -161,6 +178,7 @@ public class GameplayClient extends Client {
                 - legalmoves <position>                     Display legal moves
                     - lmoves <position>
                 - move <start position> <end position>      Make a move
+                - resign                                    Forfeit and end the game
                 - logout                                    Return to the login menu
                 - menu                                      Return to the game selection menu""";
         }

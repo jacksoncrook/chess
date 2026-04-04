@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.*;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.commands.UserResignCommand;
 
 import java.io.IOException;
 import java.net.*;
@@ -75,6 +75,11 @@ public class ServerFacade extends Endpoint {
         UserGameCommand command = new UserGameCommand(LEAVE, authToken, gameID);
         session.getBasicRemote().sendText(gson.toJson(command));
         session.close();
+    }
+
+    public void resign(Session session, String authToken, int gameID, String teamColor) throws Exception {
+        UserResignCommand command = new UserResignCommand(authToken, gameID, teamColor);
+        session.getBasicRemote().sendText(gson.toJson(command));
     }
 
     public GetGamesResult listGames(GetGamesRequest getGamesRequest) throws Exception {
