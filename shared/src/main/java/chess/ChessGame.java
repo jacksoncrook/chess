@@ -133,6 +133,17 @@ public class ChessGame {
         return out;
     }
 
+    public Collection<ChessPosition> validMoveLocations(ChessPosition startPosition) {
+        Collection<ChessPosition> out = new ArrayList<>();
+
+        Collection<ChessMove> moves = validMoves(startPosition);
+        for (ChessMove move : moves) {
+            out.add(move.getEndPosition());
+        }
+
+        return out;
+    }
+
     public Collection<ChessMove> teamValidMoves(TeamColor teamColor) {
         Collection<ChessPosition> piecePositions = getTeamPiecePositions(teamColor);
         Collection<ChessMove> out = new ArrayList<>();
