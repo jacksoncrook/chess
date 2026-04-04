@@ -24,6 +24,7 @@ public class ConnectionManager {
         Collection<Session> sessions = connections.get(gameID);
         sessions.remove(session);
         connections.replace(gameID, sessions);
+        session.close();
     }
 
     public void broadcast(Integer gameID, Session excludeSession, ServerMessage serverMessage) throws IOException {
@@ -35,5 +36,10 @@ public class ConnectionManager {
                 }
             }
         }
+    }
+
+    public void sendMsg(Session session, ServerMessage serverMessage) throws IOException {
+        String msg = serverMessage.toString();
+        session.getRemote().sendString(msg);
     }
 }
