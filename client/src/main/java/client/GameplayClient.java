@@ -92,6 +92,12 @@ public class GameplayClient extends Client {
 
     public ClientResult makeMove(String... params) {
         String message = "";
+
+        if (currentTeam == null) {
+            message = "Observers cannot make moves";
+            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
+        }
+
         if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
             message += params[0] + " " + params[1];
         } else {
