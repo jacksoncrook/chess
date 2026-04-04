@@ -84,7 +84,7 @@ public class ServerFacade {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new RequestException(ex.getMessage());
+            throw new model.RequestException(ex.getMessage());
         }
     }
 

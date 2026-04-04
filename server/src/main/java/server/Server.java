@@ -6,9 +6,13 @@ import io.javalin.*;
 public class Server {
 
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
+
+        webSocketHandler = new WebSocketHandler();
         String databaseType = "MySQL";
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", new RegisterHandler(databaseType))
                 .post("/session", new LoginHandler(databaseType))
@@ -16,7 +20,13 @@ public class Server {
                 .post("/game", new CreateGameHandler(databaseType))
                 .get("/game", new ListGamesHandler(databaseType))
                 .put("/game", new JoinGameHandler(databaseType))
-                .delete("/db", new ClearHandler(databaseType));
+                .delete("/db", new ClearHandler(databaseType))
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
+
 
     }
 
