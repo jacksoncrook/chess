@@ -118,7 +118,7 @@ public class GameService {
 
         AuthData authData = authDAO.getAuth(authToken);
 
-        if (authData == null || authData.username().equals(playerUsername)) {
+        if (authData == null || !authData.username().equals(playerUsername)) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
