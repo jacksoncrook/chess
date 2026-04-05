@@ -75,6 +75,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void resign(UserResignCommand command, String username, Session session) throws IOException {
         try {
+            if (gameService.gameIsOver(command.getGameID())) {
+                connections.sendMsg(session, new ErrorMessage("Error: game already over"));
+                return;
+            }
             gameService.resignGame(command.getAuthToken(), command.getGameID(), command.teamColor);
         } catch (DataAccessException e) {
             connections.sendMsg(session, new ErrorMessage(e.getMessage()));
@@ -87,7 +91,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void makeMove(MakeMoveCommand command, Session session) throws IOException {
         try {
             ChessGame game = gameService.makeMove(command.getAuthToken(), command.getGameID(), command.getMove());
-            connections.broadcast(command.getGameID(), session, new LoadGameMessage(game));
+            connections.broadcast(command.getGameID(), null, new LoadGameMessage(game));
+            if (game.isInCheckmate(game.getTeamTurn())) {
+                var message = game.getTeamTurn() + " is in checkmate!";
+                connections.broadcast(command.getGameID(), null, new Notification(message));
+            } else if (game.isInStalemate(game.getTeamTurn())) {
+                var message = "Stalemate!";
+                connections.broadcast(command.getGameID(), null, new Notification(message));
+            } else if (game.isInCheck(game.getTeamTurn())) {
+                var message = game.getTeamTurn() + " is in check!";
+                connections.broadcast(command.getGameID(), null, new Notification(message));
+            }
         } catch (DataAccessException e) {
             connections.sendMsg(session, new ErrorMessage("Internal server error"));
         } catch (InvalidMoveException e) {
