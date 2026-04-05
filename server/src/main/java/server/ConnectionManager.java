@@ -12,10 +12,7 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Integer, Collection<Session>> connections = new ConcurrentHashMap<>();
 
     public void add(Integer gameID, Session session) {
-        Collection<Session> sessions = connections.get(gameID);
-        if (sessions == null) {
-            sessions = new ArrayList<>();
-        }
+        Collection<Session> sessions = connections.computeIfAbsent(gameID, k -> new ArrayList<>());
         sessions.add(session);
         connections.replace(gameID, sessions);
     }
