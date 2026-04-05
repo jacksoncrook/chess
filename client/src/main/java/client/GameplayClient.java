@@ -9,6 +9,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import model.*;
 import ui.ClientResult;
 
@@ -40,8 +41,19 @@ public class GameplayClient extends Client {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                System.out.println(ERASE_LINE + message);
-                System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
+                ChessGame game = new Gson().fromJson(message, ChessGame.class);
+                if (game == null) {
+                    System.out.println(ERASE_LINE + message);
+                    System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
+                } else {
+                    try {
+                        System.out.println(ERASE_LINE + "\n" + redraw(null));
+                        System.out.print(">>>");
+                    } catch (Exception e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+
+                }
             }
         });
     }
