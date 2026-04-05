@@ -125,10 +125,15 @@ public class GameService {
         }
 
         ChessGame newGame = oldGameData.game();
-        newGame.setTeamTurn(null);
+        newGame.setTeamTurn(ChessGame.TeamColor.GAME_OVER);
         GameData newGameData = oldGameData.updateGameData(newGame);
 
         gameDAO.updateGame(oldGameData, newGameData);
+    }
+
+    public boolean gameIsOver(int gameID) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(gameID);
+        return gameData.game().getTeamTurn() == ChessGame.TeamColor.GAME_OVER;
     }
 
     public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException, InvalidMoveException {
@@ -149,6 +154,11 @@ public class GameService {
         GameData oldGameData = gameDAO.getGame(gameID);
         ChessGame game = oldGameData.game();
         game.makeMove(move);
+
+        if (game.isInCheckmate(game.getTeamTurn()) || game.isInStalemate(game.getTeamTurn())) {
+            game.setTeamTurn(ChessGame.TeamColor.GAME_OVER);
+        }
+
         GameData newGameData = oldGameData.updateGameData(game);
 
         gameDAO.updateGame(oldGameData, newGameData);

@@ -57,7 +57,8 @@ public class ChessGame {
      */
     public enum TeamColor {
         WHITE,
-        BLACK
+        BLACK,
+        GAME_OVER
     }
 
     /**
@@ -219,7 +220,7 @@ public class ChessGame {
         TeamColor currentTurn = this.getTeamTurn();
         if (currentTurn == TeamColor.WHITE) {
             this.setTeamTurn(TeamColor.BLACK);
-        } else {
+        } else if (currentTurn == TeamColor.BLACK) {
             this.setTeamTurn(TeamColor.WHITE);
         }
     }
