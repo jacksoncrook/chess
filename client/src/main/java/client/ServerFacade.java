@@ -4,6 +4,7 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.*;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserResignCommand;
 
@@ -99,8 +100,9 @@ public class ServerFacade extends Endpoint {
         return container.connectToServer(this, websocketUri);
     }
 
-    public void makeMove(Session session, ChessMove move) throws IOException {
-        session.getBasicRemote().sendText("");
+    public void makeMove(Session session, String authToken, int gameID, ChessMove move) throws IOException {
+        MakeMoveCommand command = new MakeMoveCommand(authToken, gameID, move);
+        session.getBasicRemote().sendText(gson.toJson(command));
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {

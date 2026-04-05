@@ -165,7 +165,7 @@ public class GameplayClient extends Client {
         if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
             ChessMove move = new ChessMove(positionHandler(params[0]), positionHandler(params[1]), null);
 
-            server.makeMove(session, move);
+            server.makeMove(session, authData.authToken(), currentGameID, move);
 
             message += params[0] + " " + params[1];
         } else {
