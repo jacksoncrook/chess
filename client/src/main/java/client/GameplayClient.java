@@ -1,15 +1,13 @@
 package client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import model.*;
 import ui.ClientResult;
 
@@ -41,18 +39,18 @@ public class GameplayClient extends Client {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                ChessGame game = new Gson().fromJson(message, ChessGame.class);
-                if (game == null) {
-                    System.out.println(ERASE_LINE + message);
-                    System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
-                } else {
+                try {
+                    new Gson().fromJson(message, ChessGame.class);
                     try {
-                        System.out.println(ERASE_LINE + "\n" + redraw(null));
-                        System.out.print(">>>");
+                        System.out.println(ERASE_LINE + "\n" + redraw(null).message());
+                        System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR + ">>>");
                     } catch (Exception e) {
                         System.out.println("Error: " + e.getMessage());
                     }
 
+                } catch (JsonSyntaxException ignore) {
+                    System.out.println(ERASE_LINE + "\n" + message);
+                    System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
                 }
             }
         });
@@ -101,7 +99,13 @@ public class GameplayClient extends Client {
             return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
         }
 
+
         try {
+            ChessGame game = getGame().game();
+            if (game.getTeamTurn() == GAME_OVER) {
+                return new ClientResult(GAMEPLAY, "Error: game already over", authData, currentGameIDString, currentTeam);
+            }
+
             server.resign(session, authData.authToken(), currentGameID, currentTeam);
         } catch (Exception e) {
             message = "Internal server error";
@@ -135,6 +139,74 @@ public class GameplayClient extends Client {
     }
 
     public ClientResult redraw(ChessPosition position) throws Exception {
+        GameData currentGame = getGame();
+
+        var result = outputGame(currentGame, position);
+        return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
+    }
+
+    public ClientResult makeMove(String... params) throws Exception {
+        String message = "";
+
+        if (currentTeam == null) {
+            message = "Observers cannot make moves";
+            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
+        }
+
+        ChessGame currentGame = getGame().game();
+
+        if (currentGame.getTeamTurn() == GAME_OVER) {
+            message = "Error: can't move after game end";
+            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
+        }
+
+        if (!currentTeam.equals(currentGame.getTeamTurn().toString())) {
+            message = "Error: not your turn";
+            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
+        }
+
+        if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
+            ChessMove move = new ChessMove(positionHandler(params[0]), positionHandler(params[1]), null);
+            ChessPiece piece = currentGame.getBoard().getPiece(move.getStartPosition());
+
+            boolean blackPawnPromotion = piece.getTeamColor() == BLACK && move.getEndPosition().getRow() == 1;
+            boolean whitePawnPromotion = piece.getTeamColor() == WHITE && move.getEndPosition().getRow() == 8;
+
+            if (blackPawnPromotion || whitePawnPromotion) {
+                ChessPiece.PieceType promotionPiece = null;
+                System.out.print("What would you like to promote to?");
+
+                while (promotionPiece == null) {
+                    String line = getLine();
+                    if (line.equalsIgnoreCase("queen")) {
+                        promotionPiece = ChessPiece.PieceType.QUEEN;
+                    } else if (line.equalsIgnoreCase("rook")) {
+                        promotionPiece = ChessPiece.PieceType.ROOK;
+                    } else if (line.equalsIgnoreCase("bishop")) {
+                        promotionPiece = ChessPiece.PieceType.BISHOP;
+                    } else if (line.equalsIgnoreCase("knight")) {
+                        promotionPiece = ChessPiece.PieceType.KNIGHT;
+                    } else {
+                        System.out.print("Error: invalid selection\nPlease choose Queen, Rook, Knight, or Bishop");
+                    }
+                }
+                move = new ChessMove(move.getStartPosition(), move.getEndPosition(), promotionPiece);
+            }
+
+            server.makeMove(session, authData.authToken(), currentGameID, move);
+        } else {
+            message += "Expected: <start position> <end position>";
+        }
+        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, currentTeam);
+    }
+
+    private static String getLine() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
+        return scanner.nextLine();
+    }
+
+    private GameData getGame() throws Exception {
         GetGamesResult gameList = server.listGames(new GetGamesRequest(authData.authToken()));
         GameData currentGame = null;
 
@@ -150,28 +222,7 @@ public class GameplayClient extends Client {
             throw new RequestException("Error: game not found");
         }
 
-        var result = outputGame(currentGame, position);
-        return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
-    }
-
-    public ClientResult makeMove(String... params) throws Exception {
-        String message = "";
-
-        if (currentTeam == null) {
-            message = "Observers cannot make moves";
-            return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, null);
-        }
-
-        if (params.length == 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
-            ChessMove move = new ChessMove(positionHandler(params[0]), positionHandler(params[1]), null);
-
-            server.makeMove(session, authData.authToken(), currentGameID, move);
-
-            message += params[0] + " " + params[1];
-        } else {
-            message += "Expected: <start position> <end position>";
-        }
-        return new ClientResult(GAMEPLAY, message, authData, currentGameIDString, currentTeam);
+        return currentGame;
     }
 
     public ClientResult help() {
