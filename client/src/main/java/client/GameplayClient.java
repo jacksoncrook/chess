@@ -40,8 +40,8 @@ public class GameplayClient extends Client {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                System.out.println(message);
-                System.out.println("\nEnter another message you want to echo:");
+                System.out.println(ERASE_LINE + message);
+                System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
             }
         });
     }
