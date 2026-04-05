@@ -1,6 +1,8 @@
 package service;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.*;
 import model.*;
 
@@ -127,6 +129,30 @@ public class GameService {
         GameData newGameData = oldGameData.updateGameData(newGame);
 
         gameDAO.updateGame(oldGameData, newGameData);
+    }
+
+    public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException, InvalidMoveException {
+        if (authToken == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        if (gameID == 0) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        AuthData authData = authDAO.getAuth(authToken);
+
+        if (authData == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        GameData oldGameData = gameDAO.getGame(gameID);
+        ChessGame game = oldGameData.game();
+        game.makeMove(move);
+        GameData newGameData = oldGameData.updateGameData(game);
+
+        gameDAO.updateGame(oldGameData, newGameData);
+        return game;
     }
 
     public void clear() throws DataAccessException {

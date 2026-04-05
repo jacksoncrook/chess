@@ -1,5 +1,7 @@
 package server;
 
+import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.websocket.WsCloseContext;
@@ -12,9 +14,11 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserResignCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.Notification;
 
 import java.io.IOException;
@@ -45,9 +49,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> connect(userGameCommand.getGameID(), username, ctx.session);
                 case LEAVE -> leave(userGameCommand.getGameID(), username, ctx.session);
                 case RESIGN -> resign(new Gson().fromJson(ctx.message(), UserResignCommand.class), username, ctx.session);
+                case MAKE_MOVE -> makeMove(new Gson().fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
             }
         } catch (IOException | DataAccessException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -77,5 +82,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         var notification = new Notification(username + ": " + command.teamColor + " has resigned!");
         connections.broadcast(command.getGameID(), null, notification);
+    }
+
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException {
+        try {
+            ChessGame game = gameService.makeMove(command.getAuthToken(), command.getGameID(), command.getMove());
+            connections.broadcast(command.getGameID(), session, new LoadGameMessage(game));
+        } catch (DataAccessException e) {
+            connections.sendMsg(session, new ErrorMessage("Internal server error"));
+        } catch (InvalidMoveException e) {
+            connections.sendMsg(session, new ErrorMessage("Error: invalid move"));
+        }
     }
 }
