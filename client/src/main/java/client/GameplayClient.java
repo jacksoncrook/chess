@@ -73,6 +73,7 @@ public class GameplayClient extends Client {
     public ClientResult logout() {
         String message = "Successfully logged out";
         try {
+            menu();
             server.logout(new LogoutRequest(authData.authToken()));
         } catch (Exception e) {
             message = "Server error: returning to login menu";
