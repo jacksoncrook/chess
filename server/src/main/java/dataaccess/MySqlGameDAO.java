@@ -130,11 +130,15 @@ public class MySqlGameDAO implements GameDAO{
         }
 
         if (oldGameData.whiteUsername() != null && !oldGameData.whiteUsername().equals(newGameData.whiteUsername())) {
-            throw new AlreadyTakenException("Error: white team already taken");
+            if (newGameData.whiteUsername() != null) {
+                throw new AlreadyTakenException("Error: white team already taken");
+            }
         }
 
         if (oldGameData.blackUsername() != null && !oldGameData.blackUsername().equals(newGameData.blackUsername())) {
-            throw new AlreadyTakenException("Error: black team already taken");
+            if (newGameData.blackUsername() != null) {
+                throw new AlreadyTakenException("Error: black team already taken");
+            }
         }
 
         try (Connection conn = DatabaseManager.getConnection()) {

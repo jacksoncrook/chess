@@ -100,6 +100,42 @@ public class GameService {
         }
     }
 
+    public void leaveGame(JoinGameRequest leaveGameRequest) throws DataAccessException {
+        if (leaveGameRequest == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        String color = leaveGameRequest.playerColor();
+
+        AuthData authData = authDAO.getAuth(leaveGameRequest.authToken());
+
+        if (authData == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        if (leaveGameRequest.gameID() == 0 || color == null) {
+            throw new BadRequestException("Error: bad request");
+        } else if (!color.equals("WHITE") && !color.equals("BLACK")) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        GameData oldGameData = gameDAO.getGame(leaveGameRequest.gameID());
+        String white = oldGameData.whiteUsername();
+        String black = oldGameData.blackUsername();
+
+        if (leaveGameRequest.playerColor().equals("WHITE") && white.equals(authData.username())) {
+            GameData newGameData = oldGameData.removeWhiteUser();
+            gameDAO.updateGame(oldGameData, newGameData);
+
+        } else if (leaveGameRequest.playerColor().equals("BLACK") && black.equals(authData.username())) {
+            GameData newGameData = oldGameData.removeBlackUser();
+            gameDAO.updateGame(oldGameData, newGameData);
+
+        } else {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+    }
+
     public void resignGame(String authToken, int gameID, String color) throws DataAccessException {
         if (authToken == null) {
             throw new UnauthorizedException("Error: unauthorized");

@@ -11,6 +11,14 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
         return new GameData(gameID, whiteUsername, username, gameName, game);
     }
 
+    public GameData removeWhiteUser() {
+        return new GameData(gameID, null, blackUsername, gameName, game);
+    }
+
+    public GameData removeBlackUser() {
+        return new GameData(gameID, whiteUsername, null, gameName, game);
+    }
+
     public GameData updateGameData(ChessGame newGame) {
         return new GameData(gameID, whiteUsername, blackUsername, gameName, newGame);
     }
