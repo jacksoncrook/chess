@@ -7,13 +7,15 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import model.*;
 import ui.ClientResult;
 
 import jakarta.websocket.Session;
 import jakarta.websocket.MessageHandler;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import static chess.ChessGame.TeamColor.*;
 import static ui.ClientResult.Type.*;
@@ -40,7 +42,8 @@ public class GameplayClient extends Client {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                try {
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                     ChessGame game = new Gson().fromJson(message, LoadGameMessage.class).game();
                     try {
                         System.out.println(ERASE_LINE + "\n" + redraw(null, game).message());
@@ -48,11 +51,17 @@ public class GameplayClient extends Client {
                     } catch (Exception e) {
                         System.out.println("Error: " + e.getMessage());
                     }
-
-                } catch (JsonSyntaxException ignore) {
-                    System.out.println(ERASE_LINE + "\n" + message);
+                } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                    ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                    System.out.println(ERASE_LINE + "\n" + errorMessage.message());
+                    System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
+                } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                    Notification notification = new Gson().fromJson(message, Notification.class);
+                    System.out.println(ERASE_LINE + "\n" + notification.message());
                     System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + ">>> ");
                 }
+
+
             }
         });
     }
