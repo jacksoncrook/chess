@@ -84,12 +84,14 @@ public class GameService {
         }
 
         GameData oldGameData = gameDAO.getGame(joinGameRequest.gameID());
+        String white = oldGameData.whiteUsername();
+        String black = oldGameData.blackUsername();
 
-        if (joinGameRequest.playerColor().equals("WHITE") && oldGameData.whiteUsername() == null) {
+        if (joinGameRequest.playerColor().equals("WHITE") && (white == null || white.equals(authData.username()))) {
             GameData newGameData = oldGameData.addWhiteUser(authData.username());
             gameDAO.updateGame(oldGameData, newGameData);
 
-        } else if (joinGameRequest.playerColor().equals("BLACK") && oldGameData.blackUsername() == null) {
+        } else if (joinGameRequest.playerColor().equals("BLACK") && (black == null || black.equals(authData.username()))) {
             GameData newGameData = oldGameData.addBlackUser(authData.username());
             gameDAO.updateGame(oldGameData, newGameData);
 
@@ -99,28 +101,24 @@ public class GameService {
     }
 
     public void resignGame(String authToken, int gameID, String color) throws DataAccessException {
-        if (authToken == null || color == null) {
+        if (authToken == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-
+        
         if (gameID == 0) {
             throw new BadRequestException("Error: bad request");
         }
 
         GameData oldGameData = gameDAO.getGame(gameID);
-        String playerUsername;
-
-        if (color.equals("WHITE")) {
-            playerUsername = oldGameData.whiteUsername();
-        } else if (color.equals("BLACK")) {
-            playerUsername = oldGameData.blackUsername();
-        } else {
-            throw new BadRequestException("Error: bad request");
+        AuthData authData = authDAO.getAuth(authToken);
+        
+        if (authData == null) {
+            throw new UnauthorizedException("Error: unauthorized");
         }
 
-        AuthData authData = authDAO.getAuth(authToken);
+        boolean unauthorized = isUnauthorized(color, authData, oldGameData);
 
-        if (authData == null || !authData.username().equals(playerUsername)) {
+        if (unauthorized) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
@@ -129,6 +127,23 @@ public class GameService {
         GameData newGameData = oldGameData.updateGameData(newGame);
 
         gameDAO.updateGame(oldGameData, newGameData);
+    }
+
+    private static boolean isUnauthorized(String color, AuthData authData, GameData oldGameData) throws BadRequestException {
+        boolean unauthorized;
+
+        boolean userIsBlack = authData.username().equalsIgnoreCase(oldGameData.blackUsername());
+        boolean userIsWhite = authData.username().equalsIgnoreCase(oldGameData.whiteUsername());
+        if (color == null) {
+            unauthorized = !userIsWhite && !userIsBlack;
+        } else if (color.equals("WHITE")) {
+            unauthorized = !userIsWhite;
+        } else if (color.equals("BLACK")) {
+            unauthorized = !userIsBlack;
+        } else {
+            throw new BadRequestException("Error: bad request");
+        }
+        return unauthorized;
     }
 
     public boolean gameIsOver(int gameID) throws DataAccessException {
