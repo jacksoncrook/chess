@@ -65,9 +65,6 @@ public class ClientUI {
     private void initializeGameplay(ClientResult result) {
         try {
             currentClient = new GameplayClient(serverUrl, serverUri, result.authData(), result.gameID(), result.teamColor());
-            result = currentClient.eval("redraw");
-
-            System.out.print(result.message());
 
         } catch (Throwable except) {
             System.out.print(except.getMessage());

@@ -72,6 +72,13 @@ public class UserService {
 
     }
 
+    public boolean isValidAuth(String authToken) {
+        try {
+            return authDAO.getAuth(authToken) != null;
+        } catch (DataAccessException e) {
+            return false;
+        }
+    }
 
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         if (logoutRequest == null) {

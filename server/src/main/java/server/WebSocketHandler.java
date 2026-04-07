@@ -44,6 +44,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(WsMessageContext ctx) {
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            if (!userService.isValidAuth(userGameCommand.getAuthToken())) {
+                invalidAuth(ctx.session);
+            }
             String username = userService.getUsername(userGameCommand.getAuthToken());
             switch (userGameCommand.getCommandType()) {
                 case CONNECT -> connect(userGameCommand.getGameID(), username, ctx.session);
@@ -61,8 +64,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(Integer gameID, String username, Session session) throws IOException {
+    private void connect(Integer gameID, String username, Session session) throws IOException, DataAccessException {
+        if (gameService.getGame(gameID) == null) {
+            ErrorMessage errorMessage = new ErrorMessage("Error: invalid game ID");
+            connections.sendMsg(session, errorMessage);
+            return;
+        }
         connections.add(gameID, session);
+        ChessGame game = gameService.getGame(gameID).game();
+        connections.sendMsg(session, new LoadGameMessage(game));
         var notification = new Notification(username + " has joined the game!");
         connections.broadcast(gameID, session, notification);
     }
@@ -107,5 +117,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (InvalidMoveException e) {
             connections.sendMsg(session, new ErrorMessage("Error: invalid move"));
         }
+    }
+
+    private void invalidAuth(Session session) throws IOException {
+        ErrorMessage errorMessage = new ErrorMessage("Invalid Authtoken");
+        connections.sendMsg(session, errorMessage);
     }
 }

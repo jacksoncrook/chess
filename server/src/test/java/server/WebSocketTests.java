@@ -2,7 +2,7 @@ package server;
 
 import chess.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.TestFactory;
+import server.TestFactory;
 import passoff.model.*;
 import passoff.server.TestServerFacade;
 import passoff.websocket.*;
@@ -40,7 +40,7 @@ public class WebSocketTests {
 
         serverFacade = new TestServerFacade("localhost", port);
         serverFacade.clear();
-        environment = new WebsocketTestingEnvironment("localhost", port, "/ws", org.junit.jupiter.api.TestFactory.getGsonBuilder());
+        environment = new WebsocketTestingEnvironment("localhost", port, "/ws", TestFactory.getGsonBuilder());
         waitTime = TestFactory.getMessageTime();
     }
 

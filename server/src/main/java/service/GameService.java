@@ -136,6 +136,16 @@ public class GameService {
         return gameData.game().getTeamTurn() == ChessGame.TeamColor.GAME_OVER;
     }
 
+    public GameData getGame(int gameID) throws DataAccessException {
+        GetGamesResult gameList = gameDAO.listGames();
+        for (GameData game : gameList.games()) {
+            if (game.gameID() == gameID) {
+                return game;
+            }
+        }
+        return null;
+    }
+
     public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws DataAccessException, InvalidMoveException {
         if (authToken == null) {
             throw new UnauthorizedException("Error: unauthorized");

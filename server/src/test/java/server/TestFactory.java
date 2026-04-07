@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.GsonBuilder;
 
+import java.lang.annotation.Annotation;
+
 public class TestFactory {
 
     /*
@@ -36,5 +38,4 @@ public class TestFactory {
         // builder.registerTypeAdapter(ChessMove.class, /*type adapter or json serializer */);
         return builder;
     }
-
 }

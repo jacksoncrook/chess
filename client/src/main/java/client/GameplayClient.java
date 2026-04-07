@@ -13,6 +13,7 @@ import ui.ClientResult;
 
 import jakarta.websocket.Session;
 import jakarta.websocket.MessageHandler;
+import websocket.messages.LoadGameMessage;
 
 import static chess.ChessGame.TeamColor.*;
 import static ui.ClientResult.Type.*;
@@ -40,9 +41,9 @@ public class GameplayClient extends Client {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 try {
-                    new Gson().fromJson(message, ChessGame.class);
+                    ChessGame game = new Gson().fromJson(message, LoadGameMessage.class).game();
                     try {
-                        System.out.println(ERASE_LINE + "\n" + redraw(null).message());
+                        System.out.println(ERASE_LINE + "\n" + redraw(null, game).message());
                         System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR + ">>>");
                     } catch (Exception e) {
                         System.out.println("Error: " + e.getMessage());
@@ -70,7 +71,7 @@ public class GameplayClient extends Client {
                 case "logout" -> logout();
                 case "resign" -> resign();
                 case "h", "help" -> help();
-                case "r", "ref", "refresh", "redraw" -> redraw(null);
+                case "r", "ref", "refresh", "redraw" -> redraw(null, null);
                 case "lm", "lms", "legalms", "legalmoves", "lmoves" -> legalMoves(params);
                 case "menu" -> menu();
                 default -> unknownCommand();
@@ -135,11 +136,14 @@ public class GameplayClient extends Client {
         }
 
         ChessPosition position = positionHandler(positionString);
-        return redraw(position);
+        return redraw(position, null);
     }
 
-    public ClientResult redraw(ChessPosition position) throws Exception {
+    public ClientResult redraw(ChessPosition position, ChessGame game) throws Exception {
         GameData currentGame = getGame();
+        if (game != null) {
+            currentGame = currentGame.updateGameData(game);
+        }
 
         var result = outputGame(currentGame, position);
         return new ClientResult(GAMEPLAY, result, authData, currentGameIDString, currentTeam);
