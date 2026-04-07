@@ -146,20 +146,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            ChessGame game = gameService.makeMove(command.getAuthToken(), command.getGameID(), command.getMove());
-            connections.broadcast(command.getGameID(), null, new LoadGameMessage(game));
-
             var movedMessage = "Opponent moved";
             connections.broadcast(command.getGameID(), session, new Notification(movedMessage));
 
-            if (game.isInCheckmate(game.getTeamTurn())) {
-                var message = game.getTeamTurn() + " is in checkmate!";
+            ChessGame game = gameService.makeMove(command.getAuthToken(), command.getGameID(), command.getMove());
+            connections.broadcast(command.getGameID(), null, new LoadGameMessage(game));
+            ChessGame.TeamColor nextTeam;
+
+            if (oldGame.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                nextTeam = ChessGame.TeamColor.BLACK;
+            } else {
+                nextTeam = ChessGame.TeamColor.WHITE;
+            }
+
+            if (game.isInCheckmate(nextTeam)) {
+                var message = nextTeam.name() + " is in checkmate!";
                 connections.broadcast(command.getGameID(), null, new Notification(message));
-            } else if (game.isInStalemate(game.getTeamTurn())) {
+            } else if (game.isInStalemate(nextTeam)) {
                 var message = "Stalemate!";
                 connections.broadcast(command.getGameID(), null, new Notification(message));
-            } else if (game.isInCheck(game.getTeamTurn())) {
-                var message = game.getTeamTurn() + " is in check!";
+            } else if (game.isInCheck(nextTeam)) {
+                var message = nextTeam.name() + " is in check!";
                 connections.broadcast(command.getGameID(), null, new Notification(message));
             }
         } catch (DataAccessException e) {

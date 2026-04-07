@@ -257,7 +257,7 @@ public class GameplayClient extends Client {
                 - move <start position> <end position>      Make a move
                 - resign                                    Forfeit and end the game
                 - logout                                    Return to the login menu
-                - menu                                      Return to the game selection menu""";
+                - menu                                      Leave the game and return to the game selection menu""";
         }
         return new ClientResult(GAMEPLAY, helpMessage, authData, currentGameIDString, currentTeam);
     }
